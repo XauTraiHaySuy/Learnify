@@ -78,7 +78,7 @@ const handleLogin = () => {
     if (userRole === 'admin' || userRole === 'teacher') {
       router.push('/admin');
     } else {
-      router.push('/');
+      router.push('/student');
     }
   }, 1500);
 };
