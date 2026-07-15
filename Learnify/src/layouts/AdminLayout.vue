@@ -1,79 +1,64 @@
 <template>
-  <div class="admin-layout">
-    
-    <aside class="sidebar">
+  <div class="app-layout">
+    <aside class="sidebar glass-panel">
       <div class="sidebar-logo">
-        <h2>🎓 Learnify</h2>
-        <!-- Tự động đổi tên huy hiệu theo quyền -->
-        <span class="role-badge" :class="{ 'badge-admin': currentRole === 'admin' }">
-          {{ currentRole === 'admin' ? 'Hiệu trưởng' : 'Giảng viên' }}
-        </span>
+        <router-link to="/" class="logo-link">
+          <div class="logo-icon-wrapper">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a2 2 0 0 0-.019-3.838L12.83 4.18a2 2 0 0 0-1.66 0L2.6 7.08a2 2 0 0 0 0 3.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
+          </div>
+          <h2 class="logo-text">Learnify</h2>
+        </router-link>
+        
+        <span class="role-badge badge-admin">Hiệu trưởng</span>
       </div>
 
       <nav class="sidebar-menu">
         <router-link to="/admin" class="menu-item" exact-active-class="active">
-          📊 Bảng điều khiển
+          <span class="menu-icon">📊</span>
+          <span class="menu-text">Bảng điều khiển</span>
         </router-link>
         
-        <!-- MENU CHỈ DÀNH CHO ADMIN -->
-        <template v-if="currentRole === 'admin'">
-          <router-link to="/admin/approve-teachers" class="menu-item" active-class="active">
-            ✅ Duyệt TK Giảng viên
-          </router-link>
-          <router-link to="/admin/manage-users" class="menu-item" active-class="active">
-            👥 Quản lý Người dùng
-          </router-link>
-        </template>
-
-        <!-- MENU CHỈ DÀNH CHO GIẢNG VIÊN -->
-        <template v-if="currentRole === 'teacher'">
-          <router-link to="/admin/courses" class="menu-item" active-class="active">
-            📚 Quản lý Khóa học
-          </router-link>
-          <router-link to="/admin/ai-questions" class="menu-item" active-class="active">
-            🤖 Ngân hàng Câu hỏi AI
-          </router-link>
-        </template>
+        <router-link to="/admin/approve-teachers" class="menu-item" active-class="active">
+          <span class="menu-icon">✅</span>
+          <span class="menu-text">Duyệt TK Giảng viên</span>
+        </router-link>
+        <router-link to="/admin/manage-users" class="menu-item" active-class="active">
+          <span class="menu-icon">👥</span>
+          <span class="menu-text">Quản lý Người dùng</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
         <button @click="handleLogout" class="btn-logout">
-          🚪 Đăng xuất
+          <span class="menu-icon">🚪</span>
+          <span class="menu-text">Đăng xuất</span>
         </button>
       </div>
     </aside>
 
     <div class="main-wrapper">
-      <header class="top-header">
-        <h3>Xin chào, {{ currentRole === 'admin' ? 'Hiệu trưởng' : 'Giảng viên' }}!</h3>
+      <header class="top-header glass-header">
+        <div class="header-content">
+          <h3 class="welcome-text">Xin chào, <span class="gradient-text">Hiệu trưởng</span>! 👋</h3>
+        </div>
       </header>
 
       <main class="content-area">
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route }">
           <transition name="fade-slide" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component" :key="route.fullPath" />
           </transition>
         </router-view>
       </main>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const currentRole = ref('teacher');
-
-onMounted(() => {
-  // Lấy quyền từ localStorage khi trang vừa load
-  const role = localStorage.getItem('currentRole');
-  if (role) {
-    currentRole.value = role;
-  }
-});
 
 const handleLogout = () => {
   localStorage.removeItem('currentRole');
@@ -82,45 +67,90 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* Giữ nguyên toàn bộ CSS cũ của AdminLayout ở đây */
-.admin-layout {
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+.app-layout {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #eff6ff;
+  --secondary: #8b5cf6;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --bg-main: #f8fafc;
+  --bg-sub: #ffffff;
+  --border: #e2e8f0;
+  
   display: flex;
   min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-main);
 }
 
+h1, h2, h3, h4, .logo-text, .welcome-text {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Glassmorphism Sidebar */
 .sidebar {
-  width: 260px;
-  background-color: #ffffff;
-  border-right: 1px solid #e2e8f0;
+  width: 280px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.3s, border-color 0.3s;
+  z-index: 50;
+  border-right: 1px solid var(--border);
+  transition: all 0.3s ease;
 }
 
-:global(html.theme-dark) .sidebar {
-  background-color: #1e1e38;
-  border-right-color: #33334d;
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .sidebar-logo {
-  padding: 20px;
-  border-bottom: 1px solid #e2e8f0;
-  text-align: center;
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-:global(html.theme-dark) .sidebar-logo {
-  border-bottom-color: #33334d;
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.logo-icon-wrapper {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 0.5rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
 }
 
 .role-badge {
   display: inline-block;
-  margin-top: 5px;
-  padding: 4px 10px;
-  background-color: #dbeafe;
-  color: #1d4ed8;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .role-badge.badge-admin {
@@ -128,106 +158,118 @@ const handleLogout = () => {
   color: #854d0e;
 }
 
-:global(html.theme-dark) .role-badge {
-  background-color: #1e3a8a;
-  color: #bfdbfe;
-}
-
-:global(html.theme-dark) .role-badge.badge-admin {
-  background-color: #713f12;
-  color: #fef08a;
-}
-
 .sidebar-menu {
   flex: 1;
-  padding: 20px 10px;
+  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
 .menu-item {
-  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
   text-decoration: none;
-  color: #475569;
-  border-radius: 8px;
-  font-weight: bold;
+  color: var(--text-muted);
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
 }
 
-:global(html.theme-dark) .menu-item {
-  color: #cbd5e1;
-}
-
 .menu-item:hover {
-  background-color: #f1f5f9;
-}
-
-:global(html.theme-dark) .menu-item:hover {
-  background-color: #2d2d52;
+  background-color: var(--bg-sub);
+  color: var(--text-main);
+  transform: translateX(4px);
 }
 
 .menu-item.active {
-  background-color: #3b82f6;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  font-weight: 600;
 }
 
 .sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid #e2e8f0;
-}
-
-:global(html.theme-dark) .sidebar-footer {
-  border-top-color: #33334d;
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--border);
 }
 
 .btn-logout {
   width: 100%;
-  padding: 10px;
-  background-color: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-logout:hover {
-  background-color: #fecaca;
-}
-
-:global(html.theme-dark) .btn-logout {
-  background-color: #7f1d1d;
-  color: #fca5a5;
+  background-color: #ef4444;
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .main-wrapper {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
+/* Glassmorphism Header */
 .top-header {
-  height: 70px;
-  padding: 0 30px;
+  height: 80px;
+  padding: 0 2rem;
   display: flex;
   align-items: center;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  transition: background-color 0.3s, border-color 0.3s;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--border);
 }
 
-:global(html.theme-dark) .top-header {
-  background-color: #1e1e38;
-  border-bottom-color: #33334d;
+.glass-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.header-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.welcome-text {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .content-area {
-  padding: 30px;
+  padding: 2rem;
   flex: 1;
   overflow-y: auto;
+  position: relative;
 }
 
 /* --- ANIMATION CHUYỂN TRANG --- */
@@ -244,5 +286,44 @@ const handleLogout = () => {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-20px) scale(0.98);
+}
+</style>
+
+<style>
+/* Đặt ở unscoped style block để tránh lỗi override biến CSS */
+html.theme-dark .app-layout {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --bg-main: #0f172a;
+  --bg-sub: #1e293b;
+  --border: #334155;
+}
+
+html.theme-dark .glass-panel {
+  background: rgba(30, 41, 59, 0.85);
+}
+
+html.theme-dark .role-badge {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+html.theme-dark .role-badge.badge-admin {
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+html.theme-dark .btn-logout {
+  color: #f87171;
+}
+
+html.theme-dark .btn-logout:hover {
+  color: white;
+}
+
+html.theme-dark .glass-header {
+  background: rgba(15, 23, 42, 0.8);
 }
 </style>

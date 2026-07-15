@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AdminLayout from '../layouts/AdminLayout.vue'
+import InstructorLayout from '../layouts/InstructorLayout.vue'
 import StudentLayout from '../layouts/StudentLayout.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
@@ -7,7 +8,7 @@ import AdminDashboard from '../views/AdminDashboard.vue'
 import ApproveTeachers from '../views/ApproveTeachers.vue'
 import ManageCourses from '../views/ManageCourses.vue'
 import StudentHome from '../views/StudentHome.vue'
-import Home from '../views/Home.vue' // Trang chủ mới
+import Home from '../views/Home.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,21 +29,32 @@ const router = createRouter({
       component: RegisterView
     },
     {
-      path: '/admin',
-      component: AdminLayout,
-      meta: { requiresAuth: true, roles: ['admin', 'teacher'] },
-      children: [
-        { path: '', component: AdminDashboard, name: 'admin-dashboard' },
-        { path: 'approve-teachers', component: ApproveTeachers, name: 'admin-approve-teachers' },
-        { path: 'courses', component: ManageCourses, name: 'admin-courses' }
-      ]
-    },
-    {
       path: '/student',
       component: StudentLayout,
       meta: { requiresAuth: true, roles: ['student'] },
       children: [
-        { path: '', component: StudentHome, name: 'student-home' }
+        { 
+          path: '', 
+          name: 'student-home', 
+          component: StudentHome
+        }
+      ]
+    },
+    {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { requiresAuth: true, roles: ['admin'] },
+      children: [
+        { path: '', component: AdminDashboard, name: 'admin-dashboard' },
+        { path: 'approve-teachers', component: ApproveTeachers, name: 'admin-approve-teachers' }
+      ]
+    },
+    {
+      path: '/instructor',
+      component: InstructorLayout,
+      meta: { requiresAuth: true, roles: ['teacher'] },
+      children: [
+        { path: '', component: ManageCourses, name: 'instructor-courses' }
       ]
     }
   ]
@@ -54,21 +66,19 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth) {
     if (!currentRole) {
-      // Chưa đăng nhập thì đẩy về trang login
       next('/login')
     } else if (to.meta.roles && !to.meta.roles.includes(currentRole)) {
-      // Đã đăng nhập nhưng không có quyền truy cập
-      // Nếu là admin/teacher cố vào trang học sinh -> đẩy về admin
-      // Nếu là học sinh cố vào admin -> đẩy về student
-      if (currentRole === 'admin' || currentRole === 'teacher') {
+      if (currentRole === 'admin') {
         next('/admin')
+      } else if (currentRole === 'teacher') {
+        next('/instructor')
       } else if (currentRole === 'student') {
         next('/student')
       } else {
-        next('/') // Role không hợp lệ, về trang chủ
+        next('/')
       }
     } else {
-      next() // Hợp lệ, cho qua
+      next()
     }
   } else {
     // Không yêu cầu auth (trang chủ, login, register)

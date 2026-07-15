@@ -9,18 +9,18 @@
           <h2 class="logo-text">Learnify</h2>
         </router-link>
         
-        <span class="role-badge badge-student">Sinh viên</span>
+        <span class="role-badge">Giảng viên</span>
       </div>
 
       <nav class="sidebar-menu">
-        <router-link to="/student" class="menu-item" exact-active-class="active">
-          <span class="menu-icon">🏠</span>
-          <span class="menu-text">Trang chủ Sinh viên</span>
+        <router-link to="/instructor" class="menu-item" exact-active-class="active">
+          <span class="menu-icon">📚</span>
+          <span class="menu-text">Quản lý Khóa học</span>
         </router-link>
         
-        <router-link to="/student/my-courses" class="menu-item" active-class="active">
-          <span class="menu-icon">🎓</span>
-          <span class="menu-text">Khóa học của tôi</span>
+        <router-link to="/instructor/ai-questions" class="menu-item" active-class="active">
+          <span class="menu-icon">🤖</span>
+          <span class="menu-text">Ngân hàng Câu hỏi AI</span>
         </router-link>
       </nav>
 
@@ -35,7 +35,7 @@
     <div class="main-wrapper">
       <header class="top-header glass-header">
         <div class="header-content">
-          <h3 class="welcome-text">Xin chào, <span class="gradient-text">Sinh viên</span>! 👋</h3>
+          <h3 class="welcome-text">Xin chào, <span class="gradient-text">Giảng viên</span>! 👋</h3>
         </div>
       </header>
 
@@ -147,11 +147,6 @@ h1, h2, h3, h4, .logo-text, .welcome-text {
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-}
-
-.role-badge.badge-student {
-  background-color: #dcfce7;
-  color: #166534;
 }
 
 .sidebar-menu {
@@ -304,11 +299,6 @@ html.theme-dark .glass-panel {
 html.theme-dark .role-badge {
   background-color: rgba(59, 130, 246, 0.15);
   color: #93c5fd;
-}
-
-html.theme-dark .role-badge.badge-student {
-  background-color: rgba(34, 197, 94, 0.15);
-  color: #86efac;
 }
 
 html.theme-dark .btn-logout {

@@ -1,9 +1,11 @@
 <template>
   <div class="page-container">
-    <h2 class="page-title">Danh Sách Chờ Phê Duyệt</h2>
-    <p class="page-desc">Quản lý và cấp quyền truy cập cho các giảng viên mới đăng ký.</p>
+    <div class="header-section">
+      <h2 class="page-title">Danh Sách Chờ Phê Duyệt</h2>
+      <p class="page-desc">Quản lý và cấp quyền truy cập cho các giảng viên mới đăng ký.</p>
+    </div>
 
-    <div class="table-wrapper">
+    <div class="table-wrapper glass-panel">
       <table class="data-table">
         <thead>
           <tr>
@@ -15,11 +17,19 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Giả lập dữ liệu tĩnh để test giao diện -->
           <tr v-for="teacher in teachers" :key="teacher.id">
-            <td>{{ teacher.name }}</td>
-            <td>{{ teacher.email }}</td>
-            <td>{{ teacher.subject }}</td>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  {{ teacher.name.charAt(0) }}
+                </div>
+                <span class="user-name">{{ teacher.name }}</span>
+              </div>
+            </td>
+            <td class="text-muted">{{ teacher.email }}</td>
+            <td>
+              <span class="subject-badge">{{ teacher.subject }}</span>
+            </td>
             <td>
               <span :class="['status-badge', teacher.status]">
                 {{ teacher.status === 'pending' ? 'Chờ duyệt' : 'Đã duyệt' }}
@@ -31,6 +41,7 @@
                 @click="approveTeacher(teacher.id)" 
                 class="btn-approve"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 Phê duyệt
               </button>
               <button v-else class="btn-disabled" disabled>
@@ -47,7 +58,6 @@
 <script setup>
 import { ref } from 'vue';
 
-// Giả lập dữ liệu từ Database
 const teachers = ref([
   { id: 1, name: 'Nguyễn Văn A', email: 'gva@gmail.com', subject: 'Lịch Sử 12', status: 'pending' },
   { id: 2, name: 'Trần Thị B', email: 'gvb@gmail.com', subject: 'Toán 12', status: 'active' },
@@ -58,125 +68,259 @@ const approveTeacher = (id) => {
   const teacher = teachers.value.find(t => t.id === id);
   if (teacher) {
     teacher.status = 'active';
-    // Sau này nối Backend, chỗ này sẽ gọi API cập nhật Database
-    alert(`Đã phê duyệt thành công cho giảng viên ${teacher.name}`);
+    // alert(`Đã phê duyệt thành công cho giảng viên ${teacher.name}`);
   }
 };
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
 .page-container {
-  background-color: transparent;
+  font-family: 'Inter', sans-serif;
+  color: #0f172a;
+  animation: fadeIn 0.4s ease-out backwards;
+}
+
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header-section {
+  margin-bottom: 2rem;
+}
+
+h1, h2, h3, .user-name {
+  font-family: 'Outfit', sans-serif;
 }
 
 .page-title {
-  font-size: 24px;
-  margin-bottom: 5px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .page-desc {
   color: #64748b;
-  margin-bottom: 25px;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
-:global(html.theme-dark) .page-desc {
-  color: #94a3b8;
+
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
+
+
 
 .table-wrapper {
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  overflow: hidden;
-  transition: background-color 0.3s;
-}
-
-:global(html.theme-dark) .table-wrapper {
-  background-color: #242440;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
 }
 
 .data-table th, .data-table td {
-  padding: 15px 20px;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
 }
 
-:global(html.theme-dark) .data-table th,
-:global(html.theme-dark) .data-table td {
-  border-bottom-color: #33334d;
+.data-table tbody tr:last-child td {
+  border-bottom: none;
 }
+
+
 
 .data-table th {
-  background-color: #f8fafc;
-  font-weight: bold;
+  background-color: rgba(248, 250, 252, 0.5);
+  font-weight: 600;
   color: #475569;
+  font-size: 0.95rem;
 }
 
-:global(html.theme-dark) .data-table th {
-  background-color: #1e1e38;
-  color: #cbd5e1;
+
+
+.data-table tbody tr {
+  transition: background-color 0.2s;
 }
+
+.data-table tbody tr:hover {
+  background-color: rgba(241, 245, 249, 0.5);
+}
+
+
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+
+
+.text-muted {
+  color: #64748b;
+}
+
+
+
+.subject-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+
 
 .status-badge {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .status-badge.pending {
-  background-color: #fef08a;
-  color: #854d0e;
+  background-color: rgba(234, 179, 8, 0.15);
+  color: #b45309;
 }
 
 .status-badge.active {
-  background-color: #bbf7d0;
-  color: #166534;
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #059669;
 }
 
-:global(html.theme-dark) .status-badge.pending {
-  background-color: #713f12;
-  color: #fef08a;
-}
 
-:global(html.theme-dark) .status-badge.active {
-  background-color: #14532d;
-  color: #bbf7d0;
-}
+
+
 
 .btn-approve {
-  padding: 8px 15px;
-  background-color: #3b82f6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
 }
 
 .btn-approve:hover {
-  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
 }
 
 .btn-disabled {
-  padding: 8px 15px;
-  background-color: #cbd5e1;
-  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #e2e8f0;
+  color: #94a3b8;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: not-allowed;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-:global(html.theme-dark) .btn-disabled {
-  background-color: #334155;
+
+</style>
+<style>
+/* Đặt ở unscoped style block để tránh lỗi override biến CSS */
+html.theme-dark .page-container {
+  color: #f8fafc;
+}
+
+html.theme-dark .page-desc {
   color: #94a3b8;
+}
+
+html.theme-dark .glass-panel {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+html.theme-dark .data-table th,
+:global(html.theme-dark) .data-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-dark .data-table th {
+  background-color: rgba(30, 41, 59, 0.5);
+  color: #cbd5e1;
+}
+
+html.theme-dark .data-table tbody tr:hover {
+  background-color: rgba(15, 23, 42, 0.3);
+}
+
+html.theme-dark .user-name {
+  color: #f8fafc;
+}
+
+html.theme-dark .text-muted {
+  color: #94a3b8;
+}
+
+html.theme-dark .subject-badge {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+
+html.theme-dark .status-badge.pending {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: #fde047;
+}
+
+html.theme-dark .status-badge.active {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+html.theme-dark .btn-disabled {
+  background-color: #334155;
+  color: #64748b;
 }
 </style>
