@@ -9,6 +9,8 @@ import ApproveTeachers from '../views/ApproveTeachers.vue'
 import ManageCourses from '../views/ManageCourses.vue'
 import StudentHome from '../views/StudentHome.vue'
 import Home from '../views/Home.vue'
+import ManageUsers from '../views/ManageUsers.vue'
+import AdminNotifications from '../views/AdminNotifications.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,7 +48,9 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['admin'] },
       children: [
         { path: '', component: AdminDashboard, name: 'admin-dashboard' },
-        { path: 'approve-teachers', component: ApproveTeachers, name: 'admin-approve-teachers' }
+        { path: 'approve-teachers', component: ApproveTeachers, name: 'admin-approve-teachers' },
+        { path: 'manage-users', component: ManageUsers, name: 'admin-manage-users' },
+        { path: 'notifications', component: AdminNotifications, name: 'admin-notifications' }
       ]
     },
     {

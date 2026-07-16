@@ -26,6 +26,11 @@
           <span class="menu-icon">👥</span>
           <span class="menu-text">Quản lý Người dùng</span>
         </router-link>
+        <router-link to="/admin/notifications" class="menu-item" active-class="active">
+          <span class="menu-icon">🔔</span>
+          <span class="menu-text">Thông báo</span>
+          <span class="notif-badge">2</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -190,6 +195,16 @@ h1, h2, h3, h4, .logo-text, .welcome-text {
   color: white !important;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
   font-weight: 600;
+}
+
+.notif-badge {
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  margin-left: auto;
 }
 
 .sidebar-footer {
