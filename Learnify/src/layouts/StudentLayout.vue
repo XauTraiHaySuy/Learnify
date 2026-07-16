@@ -36,6 +36,17 @@
       <header class="top-header glass-header">
         <div class="header-content">
           <h3 class="welcome-text">Xin chào, <span class="gradient-text">Sinh viên</span>! 👋</h3>
+          
+          <div class="header-actions">
+            <button class="notification-btn" title="Thông báo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="badge">3</span>
+            </button>
+            
+            <router-link to="/student/profile" class="profile-link">
+              <img :src="profilePic" alt="Profile" class="profile-avatar" />
+            </router-link>
+          </div>
         </div>
       </header>
 
@@ -51,10 +62,39 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const profilePic = ref('https://api.dicebear.com/7.x/avataaars/svg?seed=student');
+
+const loadProfilePic = () => {
+  const userStr = localStorage.getItem('user');
+  let userId = 'default';
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      userId = user.id || 'default';
+    } catch (e) {}
+  }
+  
+  const savedProfile = localStorage.getItem(`userProfile_${userId}`);
+  if (savedProfile) {
+    try {
+      const data = JSON.parse(savedProfile);
+      if (data.avatar) profilePic.value = data.avatar;
+    } catch (e) {}
+  }
+};
+
+onMounted(() => {
+  loadProfilePic();
+  window.addEventListener('profileUpdated', loadProfilePic);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('profileUpdated', loadProfilePic);
+});
 
 const handleLogout = () => {
   localStorage.removeItem('currentRole');
@@ -266,6 +306,67 @@ h1, h2, h3, h4, .logo-text, .welcome-text {
   flex: 1;
   overflow-y: auto;
   position: relative;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-right: 60px; /* Prevent overlap with global theme toggle */
+}
+
+.notification-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.notification-btn:hover {
+  background-color: var(--bg-sub);
+  color: var(--primary);
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.1rem 0.3rem;
+  border-radius: 10px;
+  border: 2px solid var(--bg-main);
+  line-height: 1;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--primary-light);
+  transition: all 0.3s ease;
+}
+
+.profile-link:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
 }
 
 /* --- ANIMATION CHUYỂN TRANG --- */

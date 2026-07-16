@@ -21,6 +21,7 @@
         <router-link to="/admin/approve-teachers" class="menu-item" active-class="active">
           <span class="menu-icon">✅</span>
           <span class="menu-text">Duyệt TK Giảng viên</span>
+          <span class="notif-badge">{{ pendingCount }}</span>
         </router-link>
         <router-link to="/admin/manage-users" class="menu-item" active-class="active">
           <span class="menu-icon">👥</span>
@@ -29,7 +30,6 @@
         <router-link to="/admin/notifications" class="menu-item" active-class="active">
           <span class="menu-icon">🔔</span>
           <span class="menu-text">Thông báo</span>
-          <span class="notif-badge">2</span>
         </router-link>
       </nav>
 
@@ -49,9 +49,9 @@
       </header>
 
       <main class="content-area">
-        <router-view v-slot="{ Component, route }">
+        <router-view v-slot="{ Component, route }" @update-pending-count="fetchPendingCount">
           <transition name="fade-slide" mode="out-in">
-            <component :is="Component" :key="route.fullPath" />
+            <component :is="Component" :key="route.fullPath" @update-pending-count="fetchPendingCount" />
           </transition>
         </router-view>
       </main>
@@ -60,10 +60,53 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { io } from 'socket.io-client';
 
 const router = useRouter();
+const route = useRoute();
+const pendingCount = ref(0);
+let socket = null;
+
+const fetchPendingCount = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/admin/pending-teachers');
+    if (response.ok) {
+      const data = await response.json();
+      pendingCount.value = data.length;
+    }
+  } catch (error) {
+    console.error('Error fetching pending count:', error);
+  }
+};
+
+watch(
+  () => route.path,
+  () => {
+    fetchPendingCount();
+  }
+);
+
+onMounted(() => {
+  fetchPendingCount();
+  
+  socket = io('http://localhost:5000');
+  
+  socket.on('newTeacherRegistered', () => {
+    fetchPendingCount();
+  });
+  
+  socket.on('teacherStatusUpdated', () => {
+    fetchPendingCount();
+  });
+});
+
+onUnmounted(() => {
+  if (socket) {
+    socket.disconnect();
+  }
+});
 
 const handleLogout = () => {
   localStorage.removeItem('currentRole');
