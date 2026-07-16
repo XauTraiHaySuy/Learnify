@@ -14,7 +14,7 @@
     </div>
     
     <div class="courses-grid">
-      <div v-for="(course, index) in courses" :key="course.id" class="course-card glass-panel" :style="{ animationDelay: `${0.1 * (index + 1)}s` }">
+      <div v-for="(course, index) in courses" :key="course.id" class="course-card glass-panel" :style="{ animationDelay: `${0.1 * (index + 1)}s` }" @click="goToLecture(course.id)">
         <div class="course-thumb">
           <div class="thumb-icon">📚</div>
         </div>
@@ -34,6 +34,13 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goToLecture = (id) => {
+  router.push(`/student/lectures/${id}`);
+};
 
 const courses = ref([
   { id: 1, title: 'Bài 1: Trật tự thế giới mới', level: 'Khối 12', subject: 'Lịch Sử' },

@@ -22,6 +22,8 @@
           <span class="menu-icon">🎓</span>
           <span class="menu-text">Khóa học của tôi</span>
         </router-link>
+
+
       </nav>
 
       <div class="sidebar-footer">
@@ -36,6 +38,9 @@
       <header class="top-header glass-header">
         <div class="header-content">
           <h3 class="welcome-text">Xin chào, <span class="gradient-text">Sinh viên</span>! 👋</h3>
+
+          <div class="header-actions">
+          </div>
         </div>
       </header>
 
@@ -266,6 +271,52 @@ h1, h2, h3, h4, .logo-text, .welcome-text {
   flex: 1;
   overflow-y: auto;
   position: relative;
+}
+
+/* Header Actions & Notifications */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.notification-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-sub);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.notification-wrapper:hover {
+  background: var(--border);
+}
+
+.bell-icon {
+  font-size: 1.2rem;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--bg-sub);
 }
 
 /* --- ANIMATION CHUYỂN TRANG --- */

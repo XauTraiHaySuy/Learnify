@@ -11,6 +11,9 @@ import StudentHome from '../views/StudentHome.vue'
 import Home from '../views/Home.vue'
 import ManageUsers from '../views/ManageUsers.vue'
 import AdminNotifications from '../views/AdminNotifications.vue'
+import LectureDetail from '../views/LectureDetail.vue'
+import Classrooms from '../views/Classrooms.vue'
+import JoinRequests from '../views/JoinRequests.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +42,11 @@ const router = createRouter({
           path: '', 
           name: 'student-home', 
           component: StudentHome
+        },
+        {
+          path: 'lectures/:id',
+          name: 'student-lecture-detail',
+          component: LectureDetail
         }
       ]
     },
@@ -58,7 +66,10 @@ const router = createRouter({
       component: InstructorLayout,
       meta: { requiresAuth: true, roles: ['teacher', 'instructor'] },
       children: [
-        { path: '', component: ManageCourses, name: 'instructor-courses' }
+        { path: '', component: ManageCourses, name: 'instructor-courses' },
+        { path: 'classrooms', component: Classrooms, name: 'instructor-classrooms' },
+        { path: 'join-requests', component: JoinRequests, name: 'instructor-join-requests' },
+        { path: 'lectures/:id', component: LectureDetail, name: 'instructor-lecture-detail' }
       ]
     }
   ]

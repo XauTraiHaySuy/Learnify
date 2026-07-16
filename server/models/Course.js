@@ -1,48 +1,52 @@
 import mongoose from 'mongoose';
 
-const materialSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  type: {
-    type: String,
-    enum: ['video', 'pdf', 'document', 'link'],
-    default: 'video',
-  },
-  url: {
-    type: String,
-    required: true,
-  }
-});
-
 const courseSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
     trim: true,
   },
-  description: {
+  level: {
     type: String,
-    trim: true,
+    required: true,
   },
-  instructor_id: {
+  subject: {
+    type: String,
+    required: true,
+  },
+  videoUrl: {
+    type: String,
+    // Không bắt buộc nữa, vì có thể chỉ có documentUrl
+  },
+  documentUrl: {
+    type: String,
+  },
+  thumbnail: {
+    type: String,
+    default: '',
+  },
+  instructor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  price: {
+  views: {
     type: Number,
-    required: true,
-    min: 0,
     default: 0,
   },
-  materials: [materialSchema],
+  description: {
+    type: String,
+    default: '',
+  },
+  isPrivate: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   }
-});
+}, { timestamps: true });
 
 const Course = mongoose.model('Course', courseSchema);
 export default Course;

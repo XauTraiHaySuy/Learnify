@@ -5,16 +5,18 @@
         <h2 class="page-title">Quản Lý Khóa Học</h2>
         <p class="page-desc">Tạo bài giảng, đăng tải Video/PDF và cấu hình AI chấm điểm.</p>
       </div>
-      <button class="btn-primary" @click="showAddModal = true">
+      <button class="btn-primary" @click="openAddModal">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-        Thêm Khóa Học
+        Đăng video bài giảng
       </button>
     </div>
 
     <div class="courses-grid">
-      <div v-for="course in courses" :key="course.id" class="course-card glass-panel">
+      <div v-for="course in courses" :key="course._id" class="course-card glass-panel" @click="goToLecture(course._id)">
         <div class="course-thumb">
-          <div class="play-icon">
+          <div v-if="course.isPrivate" class="private-badge">🔒 Chỉ mình tôi</div>
+          <img v-if="course.thumbnail" :src="course.thumbnail" class="course-thumbnail" alt="Thumbnail" />
+          <div v-else class="play-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
           </div>
         </div>
@@ -22,14 +24,25 @@
           <span class="level-badge">{{ course.level }}</span>
           <h3>{{ course.title }}</h3>
           <p class="meta">Môn: {{ course.subject }}</p>
+          <p class="time-ago">{{ formatTimeAgo(course.createdAt) }}</p>
           <div class="actions">
-            <button class="btn-action btn-edit">
+            <button class="btn-action btn-edit" @click.stop="openEditModal(course)">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
               Sửa
             </button>
-            <button class="btn-action btn-ai">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-              Cấu hình AI
+            <button class="btn-action btn-delete" @click.stop="deleteCourse(course)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              Xóa
+            </button>
+            <button class="btn-action btn-toggle-privacy" @click.stop="togglePrivacy(course)">
+              <template v-if="course.isPrivate">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Riêng tư
+              </template>
+              <template v-else>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                Công khai
+              </template>
             </button>
           </div>
         </div>
@@ -39,7 +52,7 @@
     <div v-if="showAddModal" class="modal-overlay" @click.self="showAddModal = false">
       <div class="modal-content glass-modal">
         <div class="modal-header">
-          <h3>Tạo Khóa Học Mới</h3>
+          <h3>{{ isEditMode ? 'Sửa thông tin bài giảng' : 'Đăng video bài giảng mới' }}</h3>
           <button class="btn-close" @click="showAddModal = false">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
@@ -65,36 +78,130 @@
             <input type="text" v-model="newCourse.subject" placeholder="VD: Lịch Sử" required />
           </div>
 
-          <div class="form-group full-width upload-area">
-            <div class="upload-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-              <p>Nhấp hoặc kéo thả Video Bài Giảng (MP4) vào đây</p>
+          <template v-if="!isEditMode">
+            <div class="form-group full-width upload-area" :class="{ disabled: selectedDocument }">
+              <div class="upload-content">
+                <template v-if="selectedVideo">
+                  <div class="file-preview">
+                    <p class="file-name">{{ selectedVideo.name }}</p>
+                    <p class="file-size">{{ (selectedVideo.size / (1024 * 1024)).toFixed(2) }} MB</p>
+                    <img v-if="videoThumbnail" :src="videoThumbnail" class="thumbnail-preview" alt="Video Thumbnail" />
+                  </div>
+                </template>
+                <template v-else>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                  <p>Nhấp hoặc kéo thả Video Bài Giảng (MP4) vào đây</p>
+                </template>
+              </div>
+              <input type="file" accept="video/mp4" class="file-input" @change="handleVideoUpload" :disabled="!!selectedDocument" />
             </div>
-            <input type="file" accept="video/mp4" class="file-input" />
-          </div>
 
-          <div class="form-group full-width upload-area">
-            <div class="upload-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <p>Nhấp hoặc kéo thả Tài Liệu (PDF) vào đây</p>
+            <div class="form-group full-width upload-area" :class="{ disabled: selectedVideo }">
+              <div class="upload-content">
+                <template v-if="selectedDocument">
+                  <div class="file-preview">
+                    <p class="file-name">{{ selectedDocument.name }}</p>
+                    <p class="file-size">{{ (selectedDocument.size / (1024 * 1024)).toFixed(2) }} MB</p>
+                  </div>
+                </template>
+                <template v-else>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <p>Nhấp hoặc kéo thả Tài Liệu (PDF) vào đây</p>
+                </template>
+              </div>
+              <input type="file" accept="application/pdf" class="file-input" @change="handleDocumentUpload" :disabled="!!selectedVideo" />
             </div>
-            <input type="file" accept="application/pdf" class="file-input" />
-          </div>
+
+            <div v-if="selectedVideo || selectedDocument" class="full-width flex-center">
+              <button type="button" class="btn-clear" @click="clearFiles">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                Xóa / Chọn lại
+              </button>
+            </div>
+          </template>
 
           <div class="modal-actions full-width">
             <button type="button" class="btn-cancel" @click="showAddModal = false">Hủy</button>
-            <button type="submit" class="btn-submit">Lưu Khóa Học</button>
+            <button type="submit" class="btn-submit" :disabled="isUploading">
+              {{ isUploading ? 'Đang lưu...' : (isEditMode ? 'Lưu thay đổi' : 'Đăng tải') }}
+            </button>
           </div>
         </form>
       </div>
     </div>
+
+    <!-- Confirm Modal -->
+    <div v-if="confirmModal.show" class="modal-overlay" @click.self="closeConfirm">
+      <div class="modal-content glass-modal confirm-modal">
+        <div class="modal-header">
+          <h3>Xác nhận</h3>
+          <button class="btn-close" @click="closeConfirm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <p class="confirm-message">{{ confirmModal.message }}</p>
+        <div class="modal-actions full-width">
+          <button class="btn-cancel" @click="closeConfirm">Hủy</button>
+          <button class="btn-submit btn-danger" @click="executeConfirm">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div v-if="toast.show" class="toast-notification" :class="toast.type">
+      {{ toast.message }}
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
+const router = useRouter();
 const showAddModal = ref(false);
+const isEditMode = ref(false);
+const editCourseId = ref(null);
+const isUploading = ref(false);
+const selectedVideo = ref(null);
+const selectedDocument = ref(null);
+const videoThumbnail = ref('');
+
+const confirmModal = ref({
+  show: false,
+  message: '',
+  action: null
+});
+
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'success'
+});
+
+const showConfirm = (message, action) => {
+  confirmModal.value = { show: true, message, action };
+};
+
+const closeConfirm = () => {
+  confirmModal.value.show = false;
+};
+
+const executeConfirm = async () => {
+  if (confirmModal.value.action) {
+    await confirmModal.value.action();
+  }
+  closeConfirm();
+};
+
+const showToast = (message, type = 'success') => {
+  toast.value = { show: true, message, type };
+  setTimeout(() => {
+    toast.value.show = false;
+  }, 3000);
+};
 
 const newCourse = ref({
   title: '',
@@ -102,20 +209,245 @@ const newCourse = ref({
   subject: ''
 });
 
-const courses = ref([
-  { id: 1, title: 'Bài 1: Trật tự thế giới mới', level: 'Khối 12', subject: 'Lịch Sử' },
-  { id: 2, title: 'Bài 2: Liên Hợp Quốc', level: 'Khối 12', subject: 'Lịch Sử' }
-]);
+const courses = ref([]);
 
-const handleAddCourse = () => {
-  courses.value.push({
-    id: Date.now(),
-    title: newCourse.value.title,
-    level: newCourse.value.level,
-    subject: newCourse.value.subject
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  
+  if (seconds < 60) return 'Vừa xong';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} phút trước`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} ngày trước`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} tháng trước`;
+  const years = Math.floor(months / 12);
+  return `${years} năm trước`;
+};
+
+const fetchCourses = async () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    let instructorId = '';
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      instructorId = user.id;
+    }
+    const res = await fetch(`http://localhost:5000/api/courses?role=instructor&instructor=${instructorId}`);
+    if (res.ok) {
+      courses.value = await res.json();
+    }
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+  }
+};
+
+onMounted(() => {
+  fetchCourses();
+});
+
+const generateVideoThumbnail = (file) => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.style.display = 'none';
+    document.body.appendChild(video);
+    video.preload = 'metadata';
+    video.src = URL.createObjectURL(file);
+    video.muted = true;
+    video.playsInline = true;
+
+    video.onloadedmetadata = () => {
+      video.currentTime = 1;
+    };
+
+    video.onseeked = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const base64 = canvas.toDataURL('image/jpeg');
+      URL.revokeObjectURL(video.src);
+      if (document.body.contains(video)) document.body.removeChild(video);
+      resolve(base64);
+    };
+
+    video.onerror = (e) => {
+      URL.revokeObjectURL(video.src);
+      if (document.body.contains(video)) document.body.removeChild(video);
+      reject(e);
+    };
   });
-  showAddModal.value = false;
-  newCourse.value.title = '';
+};
+
+const handleVideoUpload = async (event) => {
+  if (event.target.files.length > 0) {
+    selectedVideo.value = event.target.files[0];
+    try {
+      videoThumbnail.value = await generateVideoThumbnail(selectedVideo.value);
+    } catch (err) {
+      console.error('Error extracting thumbnail:', err);
+    }
+  }
+};
+
+const handleDocumentUpload = (event) => {
+  if (event.target.files.length > 0) {
+    selectedDocument.value = event.target.files[0];
+  }
+};
+
+const clearFiles = () => {
+  selectedVideo.value = null;
+  selectedDocument.value = null;
+  videoThumbnail.value = '';
+  const fileInputs = document.querySelectorAll('.file-input');
+  fileInputs.forEach(input => input.value = '');
+};
+
+const goToLecture = (id) => {
+  router.push(`/instructor/lectures/${id}`);
+};
+
+const openAddModal = () => {
+  isEditMode.value = false;
+  editCourseId.value = null;
+  newCourse.value = { title: '', level: 'Khối 12', subject: '' };
+  clearFiles();
+  showAddModal.value = true;
+};
+
+const openEditModal = (course) => {
+  isEditMode.value = true;
+  editCourseId.value = course._id;
+  newCourse.value = { title: course.title, level: course.level, subject: course.subject };
+  showAddModal.value = true;
+};
+
+const deleteCourse = (course) => {
+  showConfirm(`Bạn có chắc chắn muốn xóa bài giảng: ${course.title} không?`, async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/courses/${course._id}`);
+      fetchCourses();
+      showToast(`Đã xóa bài giảng: ${course.title}`);
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      showToast('Lỗi khi xóa bài giảng', 'error');
+    }
+  });
+};
+
+const togglePrivacy = (course) => {
+  const actionText = course.isPrivate ? 'công khai' : 'riêng tư';
+  showConfirm(`Bạn có chắc chắn muốn chuyển bài giảng: ${course.title} sang ${actionText} không?`, async () => {
+    try {
+      await axios.put(`http://localhost:5000/api/courses/${course._id}/toggle-privacy`);
+      fetchCourses();
+      showToast('Cập nhật trạng thái thành công');
+    } catch (error) {
+      console.error('Error toggling privacy:', error);
+      showToast('Lỗi khi đổi trạng thái', 'error');
+    }
+  });
+};
+
+const handleAddCourse = async () => {
+  if (isEditMode.value) {
+    isUploading.value = true;
+    try {
+      await axios.put(`http://localhost:5000/api/courses/${editCourseId.value}`, {
+        title: newCourse.value.title,
+        level: newCourse.value.level,
+        subject: newCourse.value.subject
+      });
+      await fetchCourses();
+      showAddModal.value = false;
+      showToast(`Đã cập nhật bài giảng: ${newCourse.value.title} thành công!`);
+    } catch (error) {
+      console.error('Error updating:', error);
+      alert('Lỗi cập nhật');
+    } finally {
+      isUploading.value = false;
+    }
+    return;
+  }
+
+  if (!selectedVideo.value && !selectedDocument.value) {
+    alert('Vui lòng chọn video hoặc tài liệu!');
+    return;
+  }
+
+  // BẮT BUỘC kiểm tra file.size trước khi gửi
+  const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB
+  if (selectedVideo.value && selectedVideo.value.size > MAX_FILE_SIZE) {
+    alert('Dung lượng video vượt quá 30MB. Vui lòng nâng cấp gói Premium để tải lên file lớn hơn!');
+    return;
+  }
+  if (selectedDocument.value && selectedDocument.value.size > MAX_FILE_SIZE) {
+    alert('Dung lượng tài liệu vượt quá 30MB. Vui lòng nâng cấp gói Premium để tải lên file lớn hơn!');
+    return;
+  }
+
+  isUploading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('title', newCourse.value.title);
+    formData.append('level', newCourse.value.level);
+    formData.append('subject', newCourse.value.subject);
+    
+    if (selectedVideo.value) {
+      formData.append('video', selectedVideo.value);
+      // Đảm bảo lấy được Base64 trước khi gửi
+      if (!videoThumbnail.value) {
+        try {
+          videoThumbnail.value = await generateVideoThumbnail(selectedVideo.value);
+        } catch (err) {
+          console.error('Error generating thumbnail on submit:', err);
+        }
+      }
+      if (videoThumbnail.value) {
+        console.log('Thumbnail Base64 generated:', videoThumbnail.value.substring(0, 50) + '...');
+        formData.append('thumbnail', videoThumbnail.value);
+      }
+    }
+    if (selectedDocument.value) {
+      formData.append('document', selectedDocument.value);
+    }
+
+    // Dùng instructor tạm thời (ví dụ lấy từ localStorage)
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      formData.append('instructor', user.id);
+    }
+
+    const res = await axios.post('http://localhost:5000/api/courses', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    if (res.status === 201 || res.status === 200) {
+      await fetchCourses(); // Tải lại danh sách từ server
+      showAddModal.value = false;
+      newCourse.value.title = '';
+      clearFiles();
+    }
+  } catch (error) {
+    console.error('Error uploading:', error);
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message);
+    } else {
+      alert('Lỗi hệ thống khi tải lên.');
+    }
+  } finally {
+    isUploading.value = false;
+  }
 };
 </script>
 
@@ -262,6 +594,12 @@ h1, h2, h3 {
 .course-info .meta {
   font-size: 0.9rem;
   color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.time-ago {
+  font-size: 0.8rem;
+  color: #94a3b8;
   margin-bottom: 1.25rem;
 }
 
@@ -402,7 +740,8 @@ h1, h2, h3 {
   font-family: inherit;
   font-size: 0.95rem;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: white;
+  background: var(--bg-color, white);
+  color: var(--text-color, #0f172a);
 }
 
 
@@ -494,6 +833,164 @@ h1, h2, h3 {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
+.upload-area.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  background: #f1f5f9;
+}
+
+.file-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.file-size {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.thumbnail-preview {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Custom Confirm Modal */
+.confirm-modal {
+  max-width: 400px;
+  text-align: center;
+}
+
+.confirm-message {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-notification.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.btn-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-clear:hover {
+  background: #fecaca;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.course-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.play-icon {
+  z-index: 2;
+}
+
+.private-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.btn-delete {
+  background: rgba(254, 226, 226, 0.8);
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}
+
+.btn-toggle-privacy {
+  background: rgba(254, 243, 199, 0.8);
+  color: #d97706;
+}
+
+.btn-toggle-privacy:hover {
+  background: #fde68a;
+}
 </style>
 <style>
 /* Đặt ở unscoped style block để tránh lỗi override biến CSS */
@@ -549,10 +1046,10 @@ html.theme-dark .btn-close:hover { background-color: #334155; }
 html.theme-dark .form-group label { color: #cbd5e1; }
 
 html.theme-dark .form-group input[type="text"], 
-:global(html.theme-dark) .form-group select {
-  background: #0f172a;
+html.theme-dark .form-group select {
+  background: var(--bg-color, #0f172a);
   border-color: #334155;
-  color: white;
+  color: var(--text-color, white);
 }
 
 html.theme-dark .upload-area {
@@ -575,4 +1072,22 @@ html.theme-dark .btn-cancel {
 }
 
 html.theme-dark .btn-cancel:hover { background: #475569; }
+
+html.theme-dark .btn-delete {
+  background: rgba(127, 29, 29, 0.4);
+  color: #f87171;
+}
+
+html.theme-dark .btn-delete:hover {
+  background: rgba(127, 29, 29, 0.6);
+}
+
+html.theme-dark .btn-toggle-privacy {
+  background: rgba(120, 53, 15, 0.4);
+  color: #fbbf24;
+}
+
+html.theme-dark .btn-toggle-privacy:hover {
+  background: rgba(120, 53, 15, 0.6);
+}
 </style>
