@@ -54,6 +54,15 @@
 
           <button type="submit" class="btn btn-primary btn-full">Đăng nhập ngay</button>
 
+          <div class="divider">
+            <span>hoặc</span>
+          </div>
+
+          <button type="button" class="btn btn-google btn-full" @click="loginWithGoogle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" class="google-icon"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+            Đăng nhập bằng Google
+          </button>
+
           <p class="toggle-text">
             Chưa có tài khoản? 
             <router-link to="/register" class="link">Đăng ký ngay</router-link>
@@ -92,6 +101,15 @@ const showToast = ref(false);
 const isError = ref(false);
 const toastText = ref('');
 const isLoading = ref(false);
+
+const loginWithGoogle = () => {
+  toastText.value = 'Chức năng đăng nhập Google đang được phát triển!';
+  isError.value = false;
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
 
 const handleLogin = async () => {
   if (!username.value || !password.value) return;
@@ -407,6 +425,44 @@ html.theme-dark .glass-panel {
 .link:hover {
   text-decoration: underline;
   color: var(--primary-dark);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.divider span {
+  padding: 0 1rem;
+}
+
+.btn-google {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.btn-google:hover {
+  background-color: var(--bg-sub);
+  border-color: #d1d5db;
+}
+
+.google-icon {
+  margin-right: 0.25rem;
 }
 
 /* Toast Notification Styles */

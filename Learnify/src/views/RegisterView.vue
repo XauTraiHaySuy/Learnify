@@ -67,6 +67,20 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="confirmPassword">Nhập lại mật khẩu</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input :type="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" v-model="confirmPassword" placeholder="Nhập lại mật khẩu" required />
+              <button type="button" class="btn-toggle-password" @click="showConfirmPassword = !showConfirmPassword" aria-label="Hiện/ẩn mật khẩu">
+                <svg v-if="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
+          </div>
+
           <div v-if="role === 'teacher'" class="form-group teacher-extra">
             <label for="subject">Môn giảng dạy (Chuyên môn)</label>
             <div class="input-wrapper">
@@ -79,6 +93,15 @@
 
           <button type="submit" class="btn btn-primary btn-full">Tạo tài khoản</button>
           
+          <div class="divider">
+            <span>hoặc</span>
+          </div>
+
+          <button type="button" class="btn btn-google btn-full" @click="registerWithGoogle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" class="google-icon"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+            Đăng ký bằng Google
+          </button>
+
           <p class="toggle-text">
             Đã có tài khoản? 
             <router-link to="/login" class="link">Đăng nhập</router-link>
@@ -89,13 +112,14 @@
       <!-- Toast Notification -->
       <div class="toast-container">
         <Transition name="toast-slide">
-          <div v-if="showToast" class="toast-notification">
+          <div v-if="showToast" class="toast-notification" :class="{ 'toast-error': isError }">
             <div class="toast-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg v-if="!isError" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
             <div class="toast-content">
-              <h4>Đăng ký thành công!</h4>
-              <p>Đang chuyển hướng đến trang đăng nhập...</p>
+              <h4>{{ isError ? 'Đăng ký thất bại!' : 'Đăng ký thành công!' }}</h4>
+              <p>{{ toastText || 'Đang chuyển hướng đến trang đăng nhập...' }}</p>
             </div>
           </div>
         </Transition>
@@ -113,11 +137,36 @@ const name = ref('');
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
+const confirmPassword = ref('');
+const showConfirmPassword = ref(false);
 const role = ref('student');
 const subject = ref('');
 const showToast = ref(false);
+const isError = ref(false);
+const toastText = ref('');
+
+const registerWithGoogle = () => {
+  isError.value = false;
+  toastText.value = 'Chức năng đăng ký bằng Google đang được phát triển!';
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
 
 const handleRegister = () => {
+  if (password.value !== confirmPassword.value) {
+    isError.value = true;
+    toastText.value = 'Mật khẩu nhập lại không khớp!';
+    showToast.value = true;
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+    return;
+  }
+
+  isError.value = false;
+  toastText.value = 'Đang chuyển hướng đến trang đăng nhập...';
   showToast.value = true;
   
   setTimeout(() => {
@@ -438,6 +487,44 @@ html.theme-dark .role-option.active {
   color: var(--primary-dark);
 }
 
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.divider span {
+  padding: 0 1rem;
+}
+
+.btn-google {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.btn-google:hover {
+  background-color: var(--bg-sub);
+  border-color: #d1d5db;
+}
+
+.google-icon {
+  margin-right: 0.25rem;
+}
+
 /* Toast Notification Styles */
 .toast-container {
   position: fixed;
@@ -469,6 +556,15 @@ html.theme-dark .toast-notification {
   background: rgba(16, 185, 129, 0.1);
   padding: 0.5rem;
   border-radius: 50%;
+}
+
+.toast-error {
+  border-left-color: #ef4444;
+}
+
+.toast-error .toast-icon {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .toast-content h4 {
