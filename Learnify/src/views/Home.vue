@@ -7,7 +7,10 @@
           <div class="logo-icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap"><path d="M21.42 10.922a2 2 0 0 0-.019-3.838L12.83 4.18a2 2 0 0 0-1.66 0L2.6 7.08a2 2 0 0 0 0 3.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
           </div>
-          <span class="logo-text">Learnify</span>
+          <div class="logo-text-wrapper" style="display: flex; flex-direction: column;">
+            <span class="logo-text">Learnify</span>
+            <span class="real-time-clock" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1; margin-top: 2px; font-weight: 500; font-family: 'Inter', sans-serif;">{{ currentTime }}</span>
+          </div>
         </div>
         
         <nav class="nav-menu">
@@ -230,6 +233,15 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const currentRole = ref(null);
 const isScrolled = ref(false);
+const currentTime = ref('');
+let timeInterval = null;
+
+const updateTime = () => {
+  const now = new Date();
+  const date = now.toLocaleDateString('vi-VN');
+  const time = now.toLocaleTimeString('vi-VN', { hour12: false });
+  currentTime.value = `${time} | ${date}`;
+};
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 20;
@@ -238,10 +250,13 @@ const handleScroll = () => {
 onMounted(() => {
   currentRole.value = localStorage.getItem('currentRole');
   window.addEventListener('scroll', handleScroll);
+  updateTime();
+  timeInterval = setInterval(updateTime, 1000);
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
+  if (timeInterval) clearInterval(timeInterval);
 });
 
 const logout = () => {

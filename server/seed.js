@@ -24,23 +24,23 @@ const seedDatabase = async () => {
     console.log('👤 Seeding Users (Admin, Instructor, Student)...');
     const users = await User.insertMany([
       {
-        name: 'Admin Learnify',
+        name: 'Admin',
         email: 'admin@learnify.com',
-        password: 'admin_password_secure', // Plain text for mock / demonstration purposes
+        password: '123456', // Plain text for mock / demonstration purposes
         role: 'admin',
         status: 'active'
       },
       {
-        name: 'Dr. Huy Hoang',
+        name: 'gv',
         email: 'huyhoang@learnify.com',
-        password: 'hH28122006_password',
+        password: '123456',
         role: 'instructor',
         status: 'active'
       },
       {
-        name: 'Jane Doe',
+        name: 'sv',
         email: 'janedoe@learnify.com',
-        password: 'student_password_123',
+        password: '123456',
         role: 'student',
         status: 'active'
       }

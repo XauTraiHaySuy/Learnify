@@ -56,7 +56,7 @@ const router = createRouter({
     {
       path: '/instructor',
       component: InstructorLayout,
-      meta: { requiresAuth: true, roles: ['teacher'] },
+      meta: { requiresAuth: true, roles: ['teacher', 'instructor'] },
       children: [
         { path: '', component: ManageCourses, name: 'instructor-courses' }
       ]
@@ -74,7 +74,7 @@ router.beforeEach((to, from, next) => {
     } else if (to.meta.roles && !to.meta.roles.includes(currentRole)) {
       if (currentRole === 'admin') {
         next('/admin')
-      } else if (currentRole === 'teacher') {
+      } else if (currentRole === 'teacher' || currentRole === 'instructor') {
         next('/instructor')
       } else if (currentRole === 'student') {
         next('/student')

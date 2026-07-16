@@ -64,12 +64,13 @@
       <!-- Toast Notification -->
       <div class="toast-container">
         <Transition name="toast-slide">
-          <div v-if="showToast" class="toast-notification">
+          <div v-if="showToast" class="toast-notification" :class="{ 'toast-error': isError }">
             <div class="toast-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg v-if="!isError" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
             <div class="toast-content">
-              <h4>Đăng nhập thành công!</h4>
+              <h4>{{ isError ? 'Đăng nhập thất bại!' : 'Đăng nhập thành công!' }}</h4>
               <p>{{ toastText }}</p>
             </div>
           </div>
@@ -88,35 +89,78 @@ const username = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const showToast = ref(false);
+const isError = ref(false);
 const toastText = ref('');
+const isLoading = ref(false);
 
-const handleLogin = () => {
-  let userRole = 'student';
-  const val = username.value.toLowerCase();
+const handleLogin = async () => {
+  if (!username.value || !password.value) return;
   
-  if (val.includes('admin')) {
-    userRole = 'admin';
-    toastText.value = '👑 Chào mừng Hiệu trưởng (Admin) quay lại!';
-  } else if (val.includes('gv') || val.includes('teacher')) {
-    userRole = 'teacher';
-    toastText.value = '🎓 Chào mừng Giảng viên quay lại!';
-  } else {
-    toastText.value = '📚 Chào mừng Học sinh quay lại!';
-  }
+  isLoading.value = true;
+  
+  try {
+    const res = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+      }),
+    });
 
-  localStorage.setItem('currentRole', userRole);
+    const data = await res.json();
 
-  showToast.value = true;
-
-  setTimeout(() => {
-    showToast.value = false;
-    
-    if (userRole === 'admin' || userRole === 'teacher') {
-      router.push('/admin');
-    } else {
-      router.push('/student');
+    if (!res.ok) {
+      isError.value = true;
+      toastText.value = data.message || 'Sai mật khẩu hoặc tài khoản!';
+      showToast.value = true;
+      setTimeout(() => {
+        showToast.value = false;
+      }, 3000);
+      return;
     }
-  }, 2000);
+
+    // Success
+    isError.value = false;
+    const userRole = data.user.role;
+    
+    if (userRole === 'admin') {
+      toastText.value = '👑 Chào mừng Hiệu trưởng (Admin) quay lại!';
+    } else if (userRole === 'instructor' || userRole === 'teacher') {
+      toastText.value = '🎓 Chào mừng Giảng viên quay lại!';
+    } else {
+      toastText.value = '📚 Chào mừng Học sinh quay lại!';
+    }
+
+    localStorage.setItem('currentRole', userRole);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    showToast.value = true;
+
+    setTimeout(() => {
+      showToast.value = false;
+      
+      if (userRole === 'admin') {
+        router.push('/admin');
+      } else if (userRole === 'instructor' || userRole === 'teacher') {
+        router.push('/instructor');
+      } else {
+        router.push('/student');
+      }
+    }, 1500);
+
+  } catch (error) {
+    isError.value = true;
+    toastText.value = 'Không thể kết nối đến server!';
+    showToast.value = true;
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -396,6 +440,15 @@ html.theme-dark .toast-notification {
   background: rgba(16, 185, 129, 0.1);
   padding: 0.5rem;
   border-radius: 50%;
+}
+
+.toast-error {
+  border-left-color: #ef4444;
+}
+
+.toast-error .toast-icon {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .toast-content h4 {
