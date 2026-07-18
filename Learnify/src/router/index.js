@@ -11,9 +11,8 @@ import StudentHome from '../views/StudentHome.vue'
 import Home from '../views/Home.vue'
 import ManageUsers from '../views/ManageUsers.vue'
 import AdminNotifications from '../views/AdminNotifications.vue'
-import LectureDetail from '../views/LectureDetail.vue'
-import Classrooms from '../views/Classrooms.vue'
-import JoinRequests from '../views/JoinRequests.vue'
+import GoogleRoleSelect from '../views/GoogleRoleSelect.vue'
+import UserProfile from '../views/UserProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +33,11 @@ const router = createRouter({
       component: RegisterView
     },
     {
+      path: '/google-role-select',
+      name: 'google-role-select',
+      component: GoogleRoleSelect
+    },
+    {
       path: '/student',
       component: StudentLayout,
       meta: { requiresAuth: true, roles: ['student'] },
@@ -44,9 +48,9 @@ const router = createRouter({
           component: StudentHome
         },
         {
-          path: 'lectures/:id',
-          name: 'student-lecture-detail',
-          component: LectureDetail
+          path: 'profile',
+          name: 'student-profile',
+          component: UserProfile
         }
       ]
     },
@@ -67,37 +71,30 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['teacher', 'instructor'] },
       children: [
         { path: '', component: ManageCourses, name: 'instructor-courses' },
-        { path: 'classrooms', component: Classrooms, name: 'instructor-classrooms' },
-        { path: 'join-requests', component: JoinRequests, name: 'instructor-join-requests' },
-        { path: 'lectures/:id', component: LectureDetail, name: 'instructor-lecture-detail' }
+        { path: 'profile', component: UserProfile, name: 'instructor-profile' }
       ]
     }
   ]
 })
 
 // Cấu hình Global Navigation Guard
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const currentRole = localStorage.getItem('currentRole')
 
   if (to.meta.requiresAuth) {
     if (!currentRole) {
-      next('/login')
+      return '/login'
     } else if (to.meta.roles && !to.meta.roles.includes(currentRole)) {
       if (currentRole === 'admin') {
-        next('/admin')
+        return '/admin'
       } else if (currentRole === 'teacher' || currentRole === 'instructor') {
-        next('/instructor')
+        return '/instructor'
       } else if (currentRole === 'student') {
-        next('/student')
+        return '/student'
       } else {
-        next('/')
+        return '/'
       }
-    } else {
-      next()
     }
-  } else {
-    // Không yêu cầu auth (trang chủ, login, register)
-    next()
   }
 })
 

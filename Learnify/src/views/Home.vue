@@ -40,18 +40,18 @@
         <div class="hero-bg-glow glow-2"></div>
         <div class="hero-container">
           <div class="hero-content">
-            <div class="badge-pill">🚀 Nền tảng học tập thế hệ mới</div>
+            <div class="badge-pill">✨ Nền tảng học tập chuẩn Bộ GD&ĐT</div>
             <h1 class="hero-title">
-              Kiến tạo tương lai với <br/>
-              <span class="gradient-text">Không gian học tập số</span>
+              Chinh phục tri thức từ <br/>
+              <span class="gradient-text">Tiểu học đến THPT</span>
             </h1>
             <p class="hero-desc">
-              Learnify mang đến giải pháp quản lý đào tạo toàn diện, kết nối liền mạch giữa học sinh, giáo viên và nhà trường trong một hệ sinh thái duy nhất.
+              Learnify đồng hành cùng các em học sinh trên mọi chặng đường. Từ xây dựng nền tảng vững chắc cấp 1 đến bứt phá điểm số kỳ thi THPT Quốc gia.
             </p>
             <div class="hero-buttons">
               <template v-if="!currentRole">
-                <router-link to="/register" class="btn btn-primary btn-lg">Tham gia ngay</router-link>
-                <a href="#features" class="btn btn-outline btn-lg">Tìm hiểu thêm</a>
+                <router-link to="/register" class="btn btn-primary btn-lg">Bắt đầu học thử miễn phí</router-link>
+                <a href="#courses" class="btn btn-outline btn-lg">Khám phá lộ trình</a>
               </template>
               <template v-else>
                 <button @click="goToDashboard(currentRole === 'admin' || currentRole === 'teacher' ? '/admin' : '/student')" class="btn btn-primary btn-lg">Đến Bảng Điều Khiển</button>
@@ -60,18 +60,18 @@
             
             <div class="hero-stats">
               <div class="stat-item">
-                <span class="stat-num">50+</span>
-                <span class="stat-label">Khóa học</span>
+                <span class="stat-num">Cấp 1-3</span>
+                <span class="stat-label">Chương trình toàn diện</span>
               </div>
               <div class="divider"></div>
               <div class="stat-item">
-                <span class="stat-num">10k+</span>
-                <span class="stat-label">Học viên</span>
+                <span class="stat-num">5.000+</span>
+                <span class="stat-label">Bài giảng & Đề thi</span>
               </div>
               <div class="divider"></div>
               <div class="stat-item">
-                <span class="stat-num">4.9/5</span>
-                <span class="stat-label">Đánh giá</span>
+                <span class="stat-num">Top 1</span>
+                <span class="stat-label">Nền tảng giáo dục số</span>
               </div>
             </div>
           </div>
@@ -118,8 +118,8 @@
       <!-- Features Section -->
       <section id="features" class="features-section">
         <div class="section-header">
-          <h2 class="section-title">Trải nghiệm học tập <span class="gradient-text">đỉnh cao</span></h2>
-          <p class="section-desc">Cung cấp mọi công cụ cần thiết cho hành trình giáo dục của bạn, từ việc theo dõi tiến độ đến tương tác trực tiếp.</p>
+          <h2 class="section-title">Phương pháp học tập <span class="gradient-text">vượt trội</span></h2>
+          <p class="section-desc">Hệ thống giáo án được thiết kế cá nhân hóa, bám sát sách giáo khoa mới và cập nhật liên tục theo xu hướng giáo dục hiện đại.</p>
         </div>
         
         <div class="features-grid">
@@ -127,24 +127,159 @@
             <div class="feature-icon-wrapper bg-blue">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
             </div>
-            <h3 class="feature-title">Tài liệu phong phú</h3>
-            <p class="feature-desc">Truy cập kho bài giảng, video và tài liệu khổng lồ được biên soạn kỹ lưỡng bởi đội ngũ giảng viên hàng đầu.</p>
+            <h3 class="feature-title">Bám sát SGK & Chương trình mới</h3>
+            <p class="feature-desc">Kho tài liệu từ Lớp 1 đến Lớp 12 được biên soạn bởi các giáo viên chuyên môn cao, đảm bảo chất lượng và bám sát kiến thức chuẩn.</p>
           </div>
           
           <div class="feature-card">
             <div class="feature-icon-wrapper bg-purple">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>
             </div>
-            <h3 class="feature-title">Quản lý lớp học thông minh</h3>
-            <p class="feature-desc">Hệ thống hỗ trợ giảng viên điểm danh, giao bài tập, và chấm điểm tự động một cách nhanh chóng, minh bạch.</p>
+            <h3 class="feature-title">Luyện thi chuyển cấp & THPTQG</h3>
+            <p class="feature-desc">Hệ thống đề thi thử, luyện phản xạ giải đề và ngân hàng câu hỏi phân loại cao giúp các em tự tin chinh phục các kỳ thi lớn.</p>
           </div>
           
           <div class="feature-card">
             <div class="feature-icon-wrapper bg-green">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
-            <h3 class="feature-title">Phân tích hiệu suất học tập</h3>
-            <p class="feature-desc">Theo dõi sự tiến bộ qua từng ngày với các biểu đồ thống kê trực quan dành riêng cho từng học sinh.</p>
+            <h3 class="feature-title">Gia sư AI & Báo cáo học tập</h3>
+            <p class="feature-desc">Phân tích điểm mạnh, điểm yếu của từng học sinh qua AI. Gửi báo cáo kết quả chi tiết hàng tuần cho phụ huynh để dễ dàng đồng hành.</p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Popular Courses Section -->
+      <section id="courses" class="courses-section">
+        <div class="section-header">
+          <h2 class="section-title">Lộ trình học <span class="gradient-text">Tiêu biểu</span></h2>
+          <p class="section-desc">Các lớp học trực tuyến tương tác cao, thiết kế chuyên biệt cho từng cấp bậc để khơi dậy niềm đam mê học hỏi.</p>
+        </div>
+
+        <div class="courses-grid">
+          <!-- Cấp 1 -->
+          <div class="course-card">
+            <div class="course-thumbnail skeleton-img">
+              <div class="course-badge">Cấp 1 (Tiểu học)</div>
+            </div>
+            <div class="course-content">
+              <div class="course-meta">
+                <span class="course-category">Lớp 3 - Lớp 5</span>
+                <span class="course-rating">⭐ 4.9 (2.1k)</span>
+              </div>
+              <h3 class="course-title">Toán Tư Duy & Tiếng Việt Khám Phá</h3>
+              <p class="course-instructor">Giảng viên: Cô Thu Thủy</p>
+              <div class="course-footer">
+                <span class="course-price">399.000đ/tháng</span>
+                <a href="#" class="btn btn-outline btn-sm">Xem chi tiết</a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cấp 2 -->
+          <div class="course-card">
+            <div class="course-thumbnail skeleton-img">
+              <div class="course-badge">Cấp 2 (THCS)</div>
+            </div>
+            <div class="course-content">
+              <div class="course-meta">
+                <span class="course-category">Lớp 9</span>
+                <span class="course-rating">⭐ 4.8 (3.5k)</span>
+              </div>
+              <h3 class="course-title">Luyện Thi Vào 10 Chuyên Toán - Lý</h3>
+              <p class="course-instructor">Giảng viên: Thầy Minh Tuấn</p>
+              <div class="course-footer">
+                <span class="course-price">499.000đ/tháng</span>
+                <a href="#" class="btn btn-outline btn-sm">Xem chi tiết</a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cấp 3 -->
+          <div class="course-card">
+            <div class="course-thumbnail skeleton-img">
+              <div class="course-badge">Cấp 3 (THPT)</div>
+            </div>
+            <div class="course-content">
+              <div class="course-meta">
+                <span class="course-category">Lớp 12</span>
+                <span class="course-rating">⭐ 5.0 (5.8k)</span>
+              </div>
+              <h3 class="course-title">Tổng Ôn & Luyện Đề THPT Quốc Gia (Khối A00)</h3>
+              <p class="course-instructor">Giảng viên: Thầy Quốc Bảo</p>
+              <div class="course-footer">
+                <span class="course-price">599.000đ/tháng</span>
+                <a href="#" class="btn btn-outline btn-sm">Xem chi tiết</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats / Trusted By -->
+      <section class="stats-banner">
+        <div class="stats-container">
+          <div class="stat-box">
+            <h3 class="stat-number">50+</h3>
+            <p class="stat-text">Trường học đối tác</p>
+          </div>
+          <div class="stat-box">
+            <h3 class="stat-number">100k+</h3>
+            <p class="stat-text">Học viên toàn cầu</p>
+          </div>
+          <div class="stat-box">
+            <h3 class="stat-number">98%</h3>
+            <p class="stat-text">Tỷ lệ hài lòng</p>
+          </div>
+          <div class="stat-box">
+            <h3 class="stat-number">24/7</h3>
+            <p class="stat-text">Hỗ trợ học tập</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section id="testimonials" class="testimonials-section">
+        <div class="section-header">
+          <h2 class="section-title">Đồng hành cùng <span class="gradient-text">Học sinh & Phụ huynh</span></h2>
+          <p class="section-desc">Sự tin tưởng và kết quả học tập vượt bậc của các em học sinh là minh chứng rõ nhất cho chất lượng tại Learnify.</p>
+        </div>
+
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="quote-icon">❝</div>
+            <p class="testimonial-text">"Hệ thống bài giảng rất sinh động, con mình học lớp 4 rất hứng thú với các bài Toán tư duy. Tính năng báo cáo giúp mình nắm rõ tình hình học của con."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar skeleton-img"></div>
+              <div class="author-info">
+                <h4 class="author-name">Chị Lan Phương</h4>
+                <p class="author-role">Phụ huynh học sinh Tiểu học</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="quote-icon">❝</div>
+            <p class="testimonial-text">"Nhờ các bộ đề luyện thi vào lớp 10 bám sát cấu trúc của Sở mà em đã tự tin thi đỗ vào trường chuyên đúng như nguyện vọng. Thầy cô giải đáp rất tận tình!"</p>
+            <div class="testimonial-author">
+              <div class="author-avatar skeleton-img"></div>
+              <div class="author-info">
+                <h4 class="author-name">Nguyễn Tuấn Kiệt</h4>
+                <p class="author-role">Học sinh lớp 10 Chuyên Khoa Học Tự Nhiên</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="quote-icon">❝</div>
+            <p class="testimonial-text">"Lộ trình ôn thi THPT Quốc gia vô cùng khoa học. Các mẹo giải nhanh trắc nghiệm môn Lý và Hóa đã giúp điểm thi của em cải thiện rõ rệt, đạt 26.5 khối A."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar skeleton-img"></div>
+              <div class="author-info">
+                <h4 class="author-name">Hoàng Ngọc Hân</h4>
+                <p class="author-role">Tân sinh viên Đại học Bách Khoa</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -153,8 +288,8 @@
       <section id="about" class="cta-section">
         <div class="cta-container">
           <div class="cta-content">
-            <h2 class="cta-title">Sẵn sàng để bắt đầu hành trình?</h2>
-            <p class="cta-desc">Hàng ngàn học viên đã và đang cải thiện kỹ năng thông qua hệ thống của chúng tôi. Hãy trở thành một phần của cộng đồng Learnify.</p>
+            <h2 class="cta-title">Sẵn sàng bứt phá điểm số?</h2>
+            <p class="cta-desc">Tham gia cùng hàng ngàn học sinh đang cải thiện thành tích mỗi ngày. Tạo tài khoản để nhận bộ tài liệu và bài giảng dùng thử ngay hôm nay.</p>
             <div class="cta-actions">
               <router-link to="/register" class="btn btn-primary btn-lg cta-btn">Đăng ký tài khoản miễn phí</router-link>
             </div>
@@ -758,6 +893,220 @@ html.theme-dark .feature-card:hover {
 .feature-desc {
   color: var(--text-muted);
   line-height: 1.6;
+}
+
+/* --- New Content Sections CSS --- */
+/* Courses Section */
+.courses-section {
+  padding: 4rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.course-card {
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1);
+  border-color: var(--primary-light);
+}
+
+html.theme-dark .course-card:hover {
+  box-shadow: 0 20px 40px -15px rgba(0,0,0,0.4);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.course-thumbnail {
+  height: 200px;
+  width: 100%;
+  position: relative;
+}
+
+.course-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #f59e0b;
+  color: white;
+  padding: 0.2rem 0.8rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.course-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.course-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+}
+
+.course-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.course-instructor {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.course-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bg-sub);
+}
+
+.course-price {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* Stats Banner */
+.stats-banner {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  padding: 4rem 2rem;
+  color: white;
+  margin: 4rem 0;
+}
+
+.stats-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  text-align: center;
+}
+
+.stat-box {
+  padding: 1rem;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.stat-text {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* Testimonials */
+.testimonials-section {
+  padding: 4rem 2rem 6rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.testimonial-card {
+  background: var(--bg-sub);
+  padding: 2.5rem;
+  border-radius: 24px;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  background: var(--bg-main);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+}
+
+html.theme-dark .testimonial-card:hover {
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2);
+}
+
+.quote-icon {
+  font-size: 4rem;
+  color: var(--primary-light);
+  line-height: 1;
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  font-family: serif;
+}
+
+html.theme-dark .quote-icon {
+  color: rgba(59, 130, 246, 0.1);
+}
+
+.testimonial-text {
+  position: relative;
+  z-index: 1;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-main);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.author-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.author-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.author-role {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 /* --- CTA Section --- */

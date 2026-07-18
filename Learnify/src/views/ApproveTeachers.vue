@@ -36,14 +36,22 @@
               </span>
             </td>
             <td>
-              <button 
-                v-if="teacher.status === 'pending'" 
-                @click="approveTeacher(teacher.id)" 
-                class="btn-approve"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                Phê duyệt
-              </button>
+              <div class="action-buttons" v-if="teacher.status === 'pending'">
+                <button 
+                  @click="approveTeacher(teacher._id)" 
+                  class="btn-approve"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Phê duyệt
+                </button>
+                <button 
+                  @click="rejectTeacher(teacher._id)" 
+                  class="btn-reject"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  Từ chối
+                </button>
+              </div>
               <button v-else class="btn-disabled" disabled>
                 Hoàn tất
               </button>
@@ -56,19 +64,126 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, defineEmits } from 'vue';
+import Swal from 'sweetalert2';
+import { io } from 'socket.io-client';
 
-const teachers = ref([
-  { id: 1, name: 'Nguyễn Văn A', email: 'gva@gmail.com', subject: 'Lịch Sử 12', status: 'pending' },
-  { id: 2, name: 'Trần Thị B', email: 'gvb@gmail.com', subject: 'Toán 12', status: 'active' },
-  { id: 3, name: 'Lê Văn C', email: 'gvc@gmail.com', subject: 'Vật Lý 11', status: 'pending' }
-]);
+const emit = defineEmits(['update-pending-count']);
 
-const approveTeacher = (id) => {
-  const teacher = teachers.value.find(t => t.id === id);
-  if (teacher) {
-    teacher.status = 'active';
-    // alert(`Đã phê duyệt thành công cho giảng viên ${teacher.name}`);
+const teachers = ref([]);
+const isLoading = ref(false);
+let socket = null;
+
+const fetchPendingTeachers = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/admin/pending-teachers');
+    if (response.ok) {
+      teachers.value = await response.json();
+    }
+  } catch (error) {
+    console.error('Error fetching teachers:', error);
+  }
+};
+
+onMounted(() => {
+  fetchPendingTeachers();
+  
+  socket = io('http://localhost:5000');
+  
+  socket.on('newTeacherRegistered', (newTeacher) => {
+    // Only add if not already in list
+    if (!teachers.value.find(t => t._id === newTeacher._id)) {
+      teachers.value.unshift(newTeacher);
+    }
+  });
+  
+  socket.on('teacherStatusUpdated', (data) => {
+    // Remove from pending list when approved/rejected
+    teachers.value = teachers.value.filter(t => t._id !== data.id);
+  });
+});
+
+onUnmounted(() => {
+  if (socket) {
+    socket.disconnect();
+  }
+});
+
+const approveTeacher = async (id) => {
+  try {
+    isLoading.value = true;
+    const response = await fetch(`http://localhost:5000/api/admin/approve-teacher/${id}`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      teachers.value = teachers.value.filter(t => t._id !== id);
+      emit('update-pending-count');
+      
+      Swal.fire({
+        title: 'Thành công!',
+        text: `Đã phê duyệt thành công cho giảng viên ${data.user.name}. Hệ thống đang gửi email thông báo.`,
+        icon: 'success',
+        confirmButtonText: 'Đóng'
+      });
+    } else {
+      throw new Error('Lỗi khi phê duyệt');
+    }
+  } catch (error) {
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã có lỗi xảy ra khi phê duyệt',
+      icon: 'error'
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const rejectTeacher = async (id) => {
+  try {
+    // Confirm before rejection
+    const confirmResult = await Swal.fire({
+      title: 'Bạn có chắc chắn?',
+      text: "Bạn sắp từ chối đăng ký của giảng viên này!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Đồng ý từ chối',
+      cancelButtonText: 'Hủy bỏ'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    isLoading.value = true;
+    const response = await fetch(`http://localhost:5000/api/admin/reject-teacher/${id}`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      teachers.value = teachers.value.filter(t => t._id !== id);
+      emit('update-pending-count');
+      
+      Swal.fire({
+        title: 'Thành công!',
+        text: `Đã từ chối giảng viên ${data.user.name}. Hệ thống đang gửi email thông báo.`,
+        icon: 'success',
+        confirmButtonText: 'Đóng'
+      });
+    } else {
+      throw new Error('Lỗi khi từ chối');
+    }
+  } catch (error) {
+    Swal.fire({
+      title: 'Lỗi!',
+      text: 'Đã có lỗi xảy ra khi từ chối',
+      icon: 'error'
+    });
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
@@ -249,6 +364,32 @@ h1, h2, h3, .user-name {
 .btn-approve:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-reject {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+.btn-reject:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .btn-disabled {

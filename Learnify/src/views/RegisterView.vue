@@ -6,40 +6,74 @@
     <div class="auth-container">
       <div class="auth-card glass-panel">
         <div class="auth-header">
+          <button v-if="step === 2" type="button" class="btn-back" @click="goBack" title="Quay lại">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          
           <router-link to="/" class="logo-link">
             <div class="logo-icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a2 2 0 0 0-.019-3.838L12.83 4.18a2 2 0 0 0-1.66 0L2.6 7.08a2 2 0 0 0 0 3.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>
             </div>
           </router-link>
-          <h2 class="auth-title">Đăng Ký</h2>
-          <p class="auth-subtitle">Tạo tài khoản mới trên <span class="gradient-text">Learnify</span></p>
+          <h2 class="auth-title">{{ step === 1 ? 'Chọn Vai Trò' : (role === 'teacher' ? 'Đăng Ký Giáo Viên' : 'Đăng Ký Học Sinh') }}</h2>
+          <p class="auth-subtitle" v-if="step === 1">Vui lòng chọn vai trò của bạn để tiếp tục</p>
+          <p class="auth-subtitle" v-else>Tạo tài khoản mới trên <span class="gradient-text">Learnify</span></p>
         </div>
 
-        <div class="role-selector">
-          <label class="role-option" :class="{ active: role === 'student' }">
-            <input type="radio" value="student" v-model="role" class="hidden-radio" /> 
-            <div class="role-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-10 5-10-5v12Z"/><path d="m22 4-10 5L2 4l10-5 10 5Z"/></svg>
-              Học sinh
+        <!-- STEP 1: ROLE SELECTION -->
+        <div v-if="step === 1" class="step-1-container">
+          <div class="role-selector-cards">
+            <div class="role-card" @click="selectRoleAndNext('student')">
+              <div class="role-icon student-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-10 5-10-5v12Z"/><path d="m22 4-10 5L2 4l10-5 10 5Z"/></svg>
+              </div>
+              <h3>Học sinh</h3>
+              <p>Tham gia các khóa học và theo dõi tiến độ học tập</p>
             </div>
-          </label>
-          <label class="role-option" :class="{ active: role === 'teacher' }">
-            <input type="radio" value="teacher" v-model="role" class="hidden-radio" /> 
-            <div class="role-content">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-              Giáo viên
+            
+            <div class="role-card" @click="selectRoleAndNext('teacher')">
+              <div class="role-icon teacher-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              </div>
+              <h3>Giáo viên</h3>
+              <p>Tạo khóa học, đăng tải bài giảng và quản lý học viên</p>
             </div>
-          </label>
+          </div>
+
+          <div class="divider">
+            <span>hoặc</span>
+          </div>
+
+          <button type="button" class="btn btn-google btn-full" @click="handleGoogleLogin">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" class="google-icon"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+            Đăng ký bằng Google
+          </button>
+
+          <p class="toggle-text">
+            Đã có tài khoản? 
+            <router-link to="/login" class="link">Đăng nhập</router-link>
+          </p>
         </div>
 
-        <form @submit.prevent="handleRegister" class="auth-form">
+        <!-- STEP 2: FORM -->
+        <form v-if="step === 2" @submit.prevent="handleRegister" class="auth-form">
+          <div class="form-group" v-if="!isGoogle">
+            <label for="username">Tên đăng nhập</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="username" v-model="username" placeholder="Nhập tên đăng nhập" required />
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="name">Họ và tên</label>
             <div class="input-wrapper">
               <span class="input-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </span>
-              <input type="text" id="name" v-model="name" placeholder="Nhập họ và tên" required />
+              <input type="text" id="name" v-model="name" placeholder="Nhập họ và tên" required :readonly="isGoogle" />
             </div>
           </div>
 
@@ -49,11 +83,11 @@
               <span class="input-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               </span>
-              <input type="email" id="email" v-model="email" placeholder="Nhập địa chỉ email" required />
+              <input type="email" id="email" v-model="email" placeholder="Nhập địa chỉ email" required :readonly="isGoogle" />
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" v-if="!isGoogle">
             <label for="password">Mật khẩu</label>
             <div class="input-wrapper">
               <span class="input-icon">
@@ -67,7 +101,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" v-if="!isGoogle">
             <label for="confirmPassword">Nhập lại mật khẩu</label>
             <div class="input-wrapper">
               <span class="input-icon">
@@ -93,15 +127,6 @@
 
           <button type="submit" class="btn btn-primary btn-full">Tạo tài khoản</button>
           
-          <div class="divider">
-            <span>hoặc</span>
-          </div>
-
-          <button type="button" class="btn btn-google btn-full" @click="registerWithGoogle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" class="google-icon"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
-            Đăng ký bằng Google
-          </button>
-
           <p class="toggle-text">
             Đã có tài khoản? 
             <router-link to="/login" class="link">Đăng nhập</router-link>
@@ -129,10 +154,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { googleTokenLogin } from 'vue3-google-login';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
+const route = useRoute();
+
+const step = ref(1);
+const username = ref('');
 const name = ref('');
 const email = ref('');
 const password = ref('');
@@ -144,18 +175,122 @@ const subject = ref('');
 const showToast = ref(false);
 const isError = ref(false);
 const toastText = ref('');
+const isGoogle = ref(false);
+const isLoading = ref(false);
+const picture = ref('');
 
-const registerWithGoogle = () => {
-  isError.value = false;
-  toastText.value = 'Chức năng đăng ký bằng Google đang được phát triển!';
-  showToast.value = true;
-  setTimeout(() => {
-    showToast.value = false;
-  }, 3000);
+onMounted(() => {
+  if (route.query.isGoogle) {
+    isGoogle.value = true;
+    step.value = 2; // Bỏ qua bước 1 nếu đăng ký từ Google
+    if (route.query.name) name.value = route.query.name;
+    if (route.query.email) email.value = route.query.email;
+    if (route.query.role) role.value = route.query.role;
+    if (route.query.picture) picture.value = route.query.picture;
+  }
+});
+
+const selectRoleAndNext = (selectedRole) => {
+  role.value = selectedRole;
+  step.value = 2;
 };
 
-const handleRegister = () => {
-  if (password.value !== confirmPassword.value) {
+const goBack = () => {
+  if (isGoogle.value) {
+    router.push({
+      path: '/google-role-select',
+      query: {
+        name: name.value,
+        email: email.value,
+        picture: picture.value
+      }
+    });
+  } else {
+    step.value = 1;
+  }
+};
+
+const handleGoogleLogin = async () => {
+  try {
+    const response = await googleTokenLogin();
+    if (!response.access_token) return;
+
+    isLoading.value = true;
+    const res = await fetch('http://localhost:5000/api/auth/google', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: response.access_token,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      isError.value = true;
+      toastText.value = data.message || 'Lỗi xác thực Google!';
+      showToast.value = true;
+      setTimeout(() => { showToast.value = false; }, 3000);
+      return;
+    }
+
+    if (data.status === 'new') {
+      // Need to register
+      router.push({
+        path: '/google-role-select',
+        query: {
+          name: data.payload.name,
+          email: data.payload.email,
+          picture: data.payload.picture
+        }
+      });
+    } else if (data.status === 'exists') {
+      // Logged in
+      isError.value = false;
+      const userRole = data.user.role;
+      
+      if (userRole === 'admin') {
+        toastText.value = '👑 Chào mừng Hiệu trưởng (Admin) quay lại!';
+      } else if (userRole === 'instructor' || userRole === 'teacher') {
+        toastText.value = '🎓 Chào mừng Giảng viên quay lại!';
+      } else {
+        toastText.value = '📚 Chào mừng Học sinh quay lại!';
+      }
+
+      localStorage.setItem('currentRole', userRole);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      const userId = data.user.id;
+      const savedProfile = localStorage.getItem(`userProfile_${userId}`);
+      let profileData = savedProfile ? JSON.parse(savedProfile) : {};
+      profileData.fullName = data.user.name;
+      if (data.googleEmail) profileData.email = data.googleEmail;
+      if (data.googleAvatar) profileData.avatar = data.googleAvatar;
+      localStorage.setItem(`userProfile_${userId}`, JSON.stringify(profileData));
+
+      showToast.value = true;
+
+      setTimeout(() => {
+        showToast.value = false;
+        if (userRole === 'admin') router.push('/admin');
+        else if (userRole === 'instructor' || userRole === 'teacher') router.push('/instructor');
+        else router.push('/student');
+      }, 1500);
+    }
+  } catch (error) {
+    isError.value = true;
+    toastText.value = 'Không thể kết nối đến server!';
+    showToast.value = true;
+    setTimeout(() => { showToast.value = false; }, 3000);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleRegister = async () => {
+  if (!isGoogle.value && password.value !== confirmPassword.value) {
     isError.value = true;
     toastText.value = 'Mật khẩu nhập lại không khớp!';
     showToast.value = true;
@@ -165,14 +300,93 @@ const handleRegister = () => {
     return;
   }
 
-  isError.value = false;
-  toastText.value = 'Đang chuyển hướng đến trang đăng nhập...';
-  showToast.value = true;
-  
-  setTimeout(() => {
-    showToast.value = false;
-    router.push('/login');
-  }, 2000);
+  isLoading.value = true;
+
+  // Auto-generate credentials for Google users
+  const submitUsername = isGoogle.value ? email.value.split('@')[0] + Math.floor(Math.random() * 10000) : username.value;
+  const submitPassword = isGoogle.value ? Math.random().toString(36).slice(-10) + 'A1!' : password.value;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: submitUsername,
+        name: name.value,
+        email: email.value,
+        password: submitPassword,
+        role: role.value,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      isError.value = true;
+      toastText.value = data.message || 'Lỗi khi đăng ký!';
+      showToast.value = true;
+      setTimeout(() => { showToast.value = false; }, 3000);
+      return;
+    }
+    
+    // Set userProfile for the newly registered user
+    const profileData = {
+      fullName: name.value,
+      email: email.value,
+      phone: '',
+      dateOfBirth: '',
+      bio: '',
+      avatar: picture.value || `https://api.dicebear.com/7.x/avataaars/svg?seed=${role.value}`
+    };
+    
+    // We get the user ID from the successful registration response
+    const userId = data.user ? data.user.id : 'default';
+    localStorage.setItem(`userProfile_${userId}`, JSON.stringify(profileData));
+
+    if (role.value === 'teacher' || role.value === 'instructor') {
+      await Swal.fire({
+        title: 'Thành công!',
+        text: data.message || 'đăng ký tài khoản thành công chờ xét duyệt chúng tôi sẽ gửi thông báo xét duyệt thành công cho bạn vào gmail',
+        icon: 'success',
+        confirmButtonText: 'Đóng'
+      });
+      router.push('/');
+      return;
+    }
+
+    isError.value = false;
+    toastText.value = 'Đăng ký thành công! Đang chuyển hướng...';
+    showToast.value = true;
+    
+    if (isGoogle.value) {
+      // Auto login for Google registration
+      localStorage.setItem('currentRole', role.value);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      setTimeout(() => {
+        showToast.value = false;
+        if (role.value === 'admin') router.push('/admin');
+        else if (role.value === 'instructor' || role.value === 'teacher') router.push('/instructor');
+        else router.push('/student');
+      }, 1500);
+    } else {
+      // Manual registration still redirects to login
+      setTimeout(() => {
+        showToast.value = false;
+        router.push('/login');
+      }, 2000);
+    }
+
+  } catch (error) {
+    isError.value = true;
+    toastText.value = 'Không thể kết nối đến server!';
+    showToast.value = true;
+    setTimeout(() => { showToast.value = false; }, 3000);
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -312,53 +526,103 @@ html.theme-dark .glass-panel {
 }
 
 /* Role Selector Styles */
-.role-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.role-selector-cards {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.hidden-radio {
-  display: none;
-}
-
-.role-option {
+.role-card {
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid var(--border);
   background-color: var(--bg-main);
-  padding: 0.75rem;
-  transition: all 0.3s ease;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.role-content {
+.role-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(59, 130, 246, 0.2);
+}
+
+html.theme-dark .role-card:hover {
+  box-shadow: 0 12px 24px -10px rgba(59, 130, 246, 0.4);
+}
+
+.role-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  font-size: 0.95rem;
+  margin: 0 auto 1rem;
+  color: white;
+}
+
+.student-icon {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.teacher-icon {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+.role-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 0.5rem;
+}
+
+.role-card p {
+  font-size: 0.9rem;
   color: var(--text-muted);
+  margin: 0;
 }
 
-.role-option:hover {
-  border-color: var(--primary-light);
-  background-color: var(--bg-sub);
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
 }
 
-.role-option.active {
+.btn-back {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-back:hover {
+  color: var(--primary);
   border-color: var(--primary);
   background-color: var(--primary-light);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  transform: scale(1.05);
 }
 
-html.theme-dark .role-option.active {
+html.theme-dark .btn-back:hover {
   background-color: rgba(59, 130, 246, 0.15);
-}
-
-.role-option.active .role-content {
-  color: var(--primary);
 }
 
 .form-group {

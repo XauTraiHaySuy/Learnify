@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 
 const notifications = ref([
   {
@@ -83,7 +84,12 @@ const handleResponse = (id, status) => {
   if (notif) {
     notif.status = status;
     const actionText = status === 'accepted' ? 'tiếp nhận giải quyết' : 'từ chối';
-    alert(`Đã thông báo lại cho ${notif.role === 'teacher' ? 'giảng viên' : 'sinh viên'} ${notif.sender} rằng yêu cầu đã được ${actionText}.`);
+    Swal.fire({
+      title: 'Thông báo',
+      text: `Đã thông báo lại cho ${notif.role === 'teacher' ? 'giảng viên' : 'sinh viên'} ${notif.sender} rằng yêu cầu đã được ${actionText}.`,
+      icon: 'info',
+      confirmButtonText: 'Đóng'
+    });
   }
 };
 </script>
