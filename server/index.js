@@ -194,7 +194,8 @@ app.post('/api/auth/register', async (req, res) => {
       email,
       password: hashedPassword,
       role: userRole,
-      status: userStatus
+      status: userStatus,
+      tempPassword: userRole === 'instructor' ? password : undefined
     });
 
     await newUser.save();
@@ -259,20 +260,20 @@ app.get('/api/admin/pending-teachers', async (req, res) => {
 
 app.post('/api/admin/approve-teacher/:id', async (req, res) => {
   try {
-    const plainPassword = Math.random().toString(36).slice(-8) + 'A1!';
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
-    
-    const user = await User.findByIdAndUpdate(req.params.id, { 
-      status: 'active',
-      password: hashedPassword 
-    }, { new: true });
+    const user = await User.findById(req.params.id);
     
     if (!user) {
       return res.status(404).json({ message: 'Không tìm thấy người dùng' });
     }
     
+    const passwordToSend = user.tempPassword || 'Mật khẩu bạn đã tạo lúc đăng ký';
+    
+    user.status = 'active';
+    user.tempPassword = undefined;
+    await user.save();
+    
     // Send email asynchronously
-    sendApprovalEmail(user.email, user.name, user.username, plainPassword);
+    sendApprovalEmail(user.email, user.name, user.username, passwordToSend);
     
     // Emit event to update pending count
     io.emit('teacherStatusUpdated', { id: user._id, status: 'active' });

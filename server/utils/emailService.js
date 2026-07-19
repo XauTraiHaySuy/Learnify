@@ -17,7 +17,7 @@ export const sendApprovalEmail = async (email, name, username, plainPassword) =>
       from: '"Hỗ trợ Learnify" <' + process.env.EMAIL_USER + '>',
       to: email,
       subject: 'Tài khoản giáo viên của bạn đã được phê duyệt!',
-      text: `Xin chào ${name},\n\nTài khoản giáo viên của bạn trên hệ thống Learnify đã được phê duyệt thành công.\n\nThông tin đăng nhập:\n- Tên đăng nhập / Email: ${username || email}\n- Mật khẩu: ${plainPassword}\n(Vui lòng đăng nhập và đổi lại mật khẩu bảo mật)\n\nTruy cập vào trang web để đăng nhập: http://localhost:5173/login\n\nTrân trọng,\nĐội ngũ hỗ trợ Learnify`,
+      text: `Xin chào ${name},\n\nTài khoản giáo viên của bạn trên hệ thống Learnify đã được phê duyệt thành công.\n\nThông tin đăng nhập:\n- Tên đăng nhập / Email: ${username || email}\n- Mật khẩu: ${plainPassword}\n\nTruy cập vào trang web để đăng nhập: http://localhost:5173/login\n\nTrân trọng,\nĐội ngũ hỗ trợ Learnify`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
           <h2 style="color: #2563eb;">Learnify</h2>
@@ -27,8 +27,7 @@ export const sendApprovalEmail = async (email, name, username, plainPassword) =>
           <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p style="margin: 0 0 10px 0;"><strong>Thông tin đăng nhập:</strong></p>
             <p style="margin: 5px 0;">Tên đăng nhập / Email: <strong>${username || email}</strong></p>
-            <p style="margin: 5px 0;">Mật khẩu: <strong style="color: #d97706;">${plainPassword}</strong></p>
-            <p style="font-size: 12px; color: #666; margin-top: 10px;"><i>* Mật khẩu đã được reset ngẫu nhiên để bảo mật. Bạn vui lòng đổi mật khẩu sau khi đăng nhập.</i></p>
+            <p style="margin: 5px 0;">Mật khẩu: <strong style="color: #2563eb;">${plainPassword}</strong></p>
           </div>
           
           <p>Bây giờ bạn có thể truy cập vào hệ thống để bắt đầu tạo khóa học.</p>

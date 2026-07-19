@@ -194,7 +194,7 @@ const rejectTeacher = async (id) => {
 .page-container {
   font-family: 'Inter', sans-serif;
   color: #0f172a;
-  animation: fadeIn 0.4s ease-out backwards;
+  animation: fadeIn 0.4s ease-out backwards;  
 }
 
 
