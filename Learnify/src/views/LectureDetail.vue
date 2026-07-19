@@ -17,12 +17,45 @@
             <div class="play-icon" style="color: #ef4444;">⚠</div>
             <p>Không thể tải video (Lỗi 404 hoặc video không tồn tại)</p>
           </div>
-          <video v-else
-            :src="lecture.videoUrl || lecture.url"
-            controls
-            style="width:100%; height:100%;"
-            @error="handleVideoError">
-          </video>
+          <div v-else class="video-wrapper">
+            <video 
+              ref="videoPlayer"
+              :src="getMediaUrl(lecture.videoUrl || lecture.url)"
+              :controls="false"
+              class="custom-video-player"
+              @timeupdate="onTimeUpdate"
+              @loadedmetadata="onLoadedMetadata"
+              @ended="isPlaying = false"
+              @error="handleVideoError"
+              @click="togglePlay"
+            ></video>
+
+            <!-- Custom Controls -->
+            <div class="custom-controls">
+              <input type="range" class="progress-bar" min="0" :max="duration" v-model="currentTime" @input="seekVideo" />
+              
+              <div class="controls-main">
+                <div class="controls-left">
+                  <button @click="togglePlay" class="control-btn" :title="isPlaying ? 'Tạm dừng' : 'Phát'">{{ isPlaying ? '⏸' : '▶' }}</button>
+                  <button @click="skip(-10)" class="control-btn" title="Tua lùi 10s">⏪</button>
+                  <button @click="skip(10)" class="control-btn" title="Tua tới 10s">⏩</button>
+                  
+                  <div class="volume-control">
+                    <span class="control-btn">🔊</span>
+                    <input type="range" min="0" max="1" step="0.1" v-model="volume" @input="updateVolume" class="volume-slider"/>
+                  </div>
+
+                  <span class="time-display">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                </div>
+                
+                <div class="controls-right">
+                  <div class="quality-menu mockup-only">
+                     <button class="control-btn quality-btn">⚙ Chất lượng (Auto)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="video-info">
@@ -33,7 +66,6 @@
               <div class="avatar">{{ lecture.instructor ? lecture.instructor.charAt(0) : '?' }}</div>
               <div class="instructor-details">
                 <span class="name">{{ lecture.instructor }}</span>
-                <span class="subscribers">{{ instructorStats.totalStudents }} học viên tham gia</span>
               </div>
               <button class="subscribe-btn" 
                       @click="joinClass" 
@@ -44,6 +76,15 @@
             </div>
             
             <div class="action-buttons">
+              <!-- View tác giả -->
+              <button v-if="isAuthor" class="action-btn like-btn author-like" disabled title="Bạn không thể tự thích bài giảng của mình">
+                <span class="icon">👍</span> {{ likeCount }} Lượt thích
+              </button>
+              <!-- View sinh viên/người khác -->
+              <button v-else class="action-btn like-btn" :class="{ 'liked': isLiked }" @click="toggleLike">
+                <span class="icon">👍</span> {{ likeCount }} Thích
+              </button>
+              
               <button class="action-btn share-btn">
                 <span class="icon">🔗</span> Chia sẻ
               </button>
@@ -140,7 +181,7 @@
         <h3 class="section-title">Bài giảng liên quan</h3>
         <div class="recmd-list">
           <div v-for="item in relatedLectures" :key="item._id" class="recmd-item" @click="goToAnother(item._id)">
-            <img :src="`https://via.placeholder.com/320x180/e2e8f0/64748b?text=Video`" class="recmd-thumb" />
+            <img :src="getMediaUrl(item.thumbnailUrl || item.thumbnail) || 'https://via.placeholder.com/320x180/e2e8f0/64748b?text=Video'" class="recmd-thumb" />
             <div class="recmd-info">
               <h4 class="recmd-title">{{ item.title }}</h4>
               <p class="recmd-author">{{ item.instructor }}</p>
@@ -155,7 +196,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import io from 'socket.io-client';
 
@@ -173,6 +214,119 @@ const newCommentText = ref('');
 const replyText = ref('');
 const activeReplyId = ref(null);
 const videoError = ref(false);
+
+const isLiked = ref(false);
+const likeCount = ref(0);
+
+// ================= VIDEO PLAYER TÙY CHỈNH =================
+const videoPlayer = ref(null);
+const isPlaying = ref(false);
+const currentTime = ref(0);
+const duration = ref(0);
+const volume = ref(1);
+
+const togglePlay = () => {
+    if (!videoPlayer.value) return;
+    if (videoPlayer.value.paused) {
+        videoPlayer.value.play();
+        isPlaying.value = true;
+    } else {
+        videoPlayer.value.pause();
+        isPlaying.value = false;
+    }
+};
+
+const skip = (seconds) => {
+    if (videoPlayer.value) {
+        videoPlayer.value.currentTime += seconds;
+    }
+};
+
+const onTimeUpdate = () => {
+    if (videoPlayer.value) {
+        currentTime.value = videoPlayer.value.currentTime;
+    }
+};
+
+const onLoadedMetadata = () => {
+    if (videoPlayer.value) {
+        duration.value = videoPlayer.value.duration;
+    }
+};
+
+const seekVideo = () => {
+    if (videoPlayer.value) {
+        videoPlayer.value.currentTime = currentTime.value;
+    }
+};
+
+const updateVolume = () => {
+    if (videoPlayer.value) {
+        videoPlayer.value.volume = volume.value;
+    }
+};
+
+const formatTime = (seconds) => {
+    if (isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
+
+// ================= LOGIC PHÂN QUYỀN LIKE =================
+const isAuthor = computed(() => {
+    if (!currentUser.value || !lecture.value) return false;
+    const viewerId = currentUser.value._id || currentUser.value.id;
+    const instructorId = lecture.value.instructor_id || (lecture.value.instructor && lecture.value.instructor._id) || lecture.value.instructor;
+    return String(viewerId) === String(instructorId);
+});
+
+const toggleLike = async () => {
+    if (isAuthor.value) return; // Bảo vệ lần 2 (nếu UI bị bypass)
+
+    // Cập nhật Optimistic UI (nhanh chóng phản hồi)
+    isLiked.value = !isLiked.value;
+    likeCount.value += isLiked.value ? 1 : -1;
+
+    try {
+        const viewerId = currentUser.value?._id || currentUser.value?.id;
+        
+        // Gọi API lên backend để lưu vào database
+        const res = await fetch(`http://localhost:5000/api/courses/${courseId}/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: viewerId, isLiked: isLiked.value })
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            // Nếu BE trả về số lượt like mới nhất, đồng bộ lại
+            if (data.likes !== undefined) {
+                likeCount.value = data.likes;
+            }
+            
+            // Emit sự kiện socket để cập nhật real-time cho các user khác
+            if (socket) {
+                socket.emit('toggle_like', {
+                    course_id: courseId,
+                    likes: likeCount.value
+                });
+            }
+        }
+    } catch (err) {
+        console.error('Lỗi khi thích bài giảng:', err);
+        // Trả lại UI nếu lỗi
+        isLiked.value = !isLiked.value;
+        likeCount.value += isLiked.value ? 1 : -1;
+    }
+};
+
+const getMediaUrl = (path) => {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `http://localhost:5000${cleanPath}`;
+};
 
 const handleVideoError = () => {
     videoError.value = true;
@@ -240,6 +394,11 @@ const fetchLectureData = async () => {
         if (res.ok) {
             lecture.value = await res.json();
             
+            // Initialize like count if the API provides it (optional)
+            if (lecture.value.likes !== undefined) {
+                likeCount.value = lecture.value.likes;
+            }
+
             const viewerId = currentUser.value?._id || currentUser.value?.id;
             const instructorId = lecture.value.instructor_id;
 
@@ -299,6 +458,13 @@ const setupSocket = () => {
             // It's a root comment
             newComment.replies = [];
             comments.value.unshift(newComment);
+        }
+    });
+
+    // Lắng nghe sự kiện like từ người khác
+    socket.on('like_updated', (data) => {
+        if (data.course_id === courseId && data.likes !== undefined) {
+            likeCount.value = data.likes;
         }
     });
 };
@@ -372,8 +538,9 @@ onUnmounted(() => {
 
 .content-layout {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
   gap: 2rem;
+  align-items: start;
 }
 
 /* Video Player */
@@ -384,6 +551,108 @@ onUnmounted(() => {
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: black;
+}
+
+.custom-video-player {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+/* Custom Controls */
+.custom-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.video-wrapper:hover .custom-controls,
+.video-container:hover .custom-controls {
+  opacity: 1;
+}
+
+.progress-bar {
+  width: 100%;
+  cursor: pointer;
+  accent-color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.controls-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.controls-left, .controls-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.control-btn:hover {
+  color: var(--primary);
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.volume-slider {
+  width: 70px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.time-display {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 5px;
+}
+
+.quality-btn {
+  font-size: 0.85rem;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.quality-btn:hover {
+  border-color: white;
 }
 
 .video-placeholder {
@@ -506,6 +775,20 @@ onUnmounted(() => {
 
 .action-btn:hover {
   background: var(--border);
+}
+
+.action-btn.like-btn.liked {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(var(--primary-rgb, 59, 130, 246), 0.1);
+}
+
+.action-btn.author-like {
+  opacity: 0.8;
+  cursor: default;
+}
+.action-btn.author-like:hover {
+  background: var(--bg-sub); /* Vô hiệu hóa hiệu ứng hover */
 }
 
 .video-description {

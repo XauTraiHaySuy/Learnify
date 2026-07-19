@@ -13,7 +13,8 @@ import ManageUsers from '../views/ManageUsers.vue'
 import AdminNotifications from '../views/AdminNotifications.vue'
 import GoogleRoleSelect from '../views/GoogleRoleSelect.vue'
 import UserProfile from '../views/UserProfile.vue'
-
+import LectureDetail from '../views/LectureDetail.vue'
+import AiQuestions from '../views/AiQuestions.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -51,6 +52,11 @@ const router = createRouter({
           path: 'profile',
           name: 'student-profile',
           component: UserProfile
+        },
+        {
+          path: 'lectures/:id',
+          name: 'student-lecture-detail',
+          component: LectureDetail
         }
       ]
     },
@@ -62,7 +68,8 @@ const router = createRouter({
         { path: '', component: AdminDashboard, name: 'admin-dashboard' },
         { path: 'approve-teachers', component: ApproveTeachers, name: 'admin-approve-teachers' },
         { path: 'manage-users', component: ManageUsers, name: 'admin-manage-users' },
-        { path: 'notifications', component: AdminNotifications, name: 'admin-notifications' }
+        { path: 'notifications', component: AdminNotifications, name: 'admin-notifications' },
+        { path: 'lectures/:id', component: LectureDetail, name: 'admin-lecture-detail' }
       ]
     },
     {
@@ -71,7 +78,9 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['teacher', 'instructor'] },
       children: [
         { path: '', component: ManageCourses, name: 'instructor-courses' },
-        { path: 'profile', component: UserProfile, name: 'instructor-profile' }
+        { path: 'profile', component: UserProfile, name: 'instructor-profile' },
+        { path: 'lectures/:id', component: LectureDetail, name: 'instructor-lecture-detail' },
+        { path: 'ai-questions', component: AiQuestions, name: 'instructor-ai-questions' }
       ]
     }
   ]
