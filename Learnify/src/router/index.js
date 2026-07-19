@@ -13,11 +13,19 @@ import ManageUsers from '../views/ManageUsers.vue'
 import AdminNotifications from '../views/AdminNotifications.vue'
 import GoogleRoleSelect from '../views/GoogleRoleSelect.vue'
 import UserProfile from '../views/UserProfile.vue'
+import QuizDashboard from '../views/QuizDashboard.vue'
 import LectureDetail from '../views/LectureDetail.vue'
 import AiQuestions from '../views/AiQuestions.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/quiz',
+      name: 'quiz-dashboard',
+      component: QuizDashboard,
+      meta: { requiresAuth: true }
+    },
     {
       path: '/',
       name: 'home',
@@ -43,9 +51,9 @@ const router = createRouter({
       component: StudentLayout,
       meta: { requiresAuth: true, roles: ['student'] },
       children: [
-        { 
-          path: '', 
-          name: 'student-home', 
+        {
+          path: '',
+          name: 'student-home',
           component: StudentHome
         },
         {

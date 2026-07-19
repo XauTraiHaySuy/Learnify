@@ -44,7 +44,7 @@
     <div class="main-wrapper">
       <header class="top-header glass-header">
         <div class="header-content">
-          <h3 class="welcome-text">Xin chào, <span class="gradient-text">Hiệu trưởng</span>! 👋</h3>
+          <h3 class="welcome-text">Xin chào, <span class="gradient-text">{{ userName || 'Hiệu trưởng' }}</span>! 👋</h3>
         </div>
       </header>
 
@@ -67,6 +67,7 @@ import { io } from 'socket.io-client';
 const router = useRouter();
 const route = useRoute();
 const pendingCount = ref(0);
+const userName = ref('Hiệu trưởng');
 let socket = null;
 
 const fetchPendingCount = async () => {
@@ -90,6 +91,14 @@ watch(
 
 onMounted(() => {
   fetchPendingCount();
+  
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      userName.value = user.name || user.fullName || user.username || 'Hiệu trưởng';
+    } catch (e) {}
+  }
   
   socket = io('http://localhost:5000');
   

@@ -2,7 +2,7 @@
   <div id="app-wrapper">
     
     <!-- KHỐI NÚT GẠT ĐÃ ĐƯỢC LÀM NỔI ĐỘC LẬP -->
-    <div class="global-theme-toggle">
+    <div class="global-theme-toggle" v-if="route.path !== '/quiz'">
       <button 
         class="theme-toggle-switch"
         :class="{ 'is-dark': isDarkMode }"
@@ -22,7 +22,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const isDarkMode = ref(false);
 
 const applyTheme = (isDark) => {

@@ -23,6 +23,10 @@
           <span class="menu-text">Khóa học của tôi</span>
         </router-link>
 
+        <router-link to="/quiz" class="menu-item" active-class="active">
+          <span class="menu-icon">🧩</span>
+          <span class="menu-text">Quiz</span>
+        </router-link>
 
       </nav>
 
@@ -37,7 +41,7 @@
     <div class="main-wrapper">
       <header class="top-header glass-header">
         <div class="header-content">
-          <h3 class="welcome-text">Xin chào, <span class="gradient-text">Sinh viên</span>! 👋</h3>
+          <h3 class="welcome-text">Xin chào, <span class="gradient-text">{{ userName || 'Sinh viên' }}</span>! 👋</h3>
           
           <div class="header-actions">
             <button class="notification-btn" title="Thông báo">
@@ -69,6 +73,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const profilePic = ref('https://api.dicebear.com/7.x/avataaars/svg?seed=student');
+const userName = ref('Sinh viên');
 
 const loadProfilePic = () => {
   const userStr = localStorage.getItem('user');
@@ -77,6 +82,7 @@ const loadProfilePic = () => {
     try {
       const user = JSON.parse(userStr);
       userId = user.id || 'default';
+      userName.value = user.name || user.fullName || user.username || 'Sinh viên';
     } catch (e) {}
   }
   
